@@ -34,4 +34,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-/Secrets.js
+/BITEBUDDY/Secrets.js
