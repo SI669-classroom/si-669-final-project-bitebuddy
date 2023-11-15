@@ -1,89 +1,110 @@
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native";
-import { Button } from "@rneui/base";
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Pressable } from "react-native";
+import { Overlay, ButtonGroup } from "react-native-elements";
+import { FontAwesome5 } from '@expo/vector-icons';
 
-import ListItem from "../components/ListItem";
-import { loadItems } from "../data/Actions";
+import { loadPosts } from "../data/Actions";
+
 function HomeScreen(props) {
-  
-  const { navigation } = props;
-  const listItems = useSelector((state) => state.listItems);
+    const { navigation } = props;
+    const posts = useSelector((state) => state.posts);
+    const dispatch = useDispatch();
 
-  const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(loadPosts());
+    }, []);
 
-  useEffect(()=>{
-    console.log('dispatching load');
-    dispatch(loadItems());
-  }, []);
+    const handleAddPost = () => {
+        navigation.navigate('EditPost');
+    }
 
-  return(
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Homepage</Text>
-      </View>
-      <View style={styles.listContainer}>
-        <FlatList
-          data={listItems}
-          renderItem={({item})=>{
-            return (
-              // console.log("here:",item),
-              <ListItem item={item} navigation={navigation} />
-            );
-          }}
-        />
-      </View>
-      <Button
-        title='Add'
-        onPress={()=>{
-          // console.log(item),
-          navigation.navigate('Details', {
-            item: {
-              key: -1,
-              title: '',
-              text: '',
-              diningHall: '',
-              tag: '',
-            }
-          });
-        }}
-      />
-    </View>
-  );
+    const renderPost = ({ item }) => (
+        <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
+            <View style={styles.postCard}>
+                <Text style={styles.postTitle}>{item.title}</Text>
+                <Text style={styles.postTag}>{item.tag}</Text>
+                <Text style={styles.postDiningHall}>{item.diningHall}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
+    return (
+        <View style={styles.screen}>
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Explore</Text>
+                <TouchableOpacity onPress={handleAddPost}>
+                    <FontAwesome5 name="plus-circle" size={24} color="black" />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.listContainer}>
+                <FlatList
+                    data={posts}
+                    renderItem={renderPost}
+                    keyExtractor={item => item.key}
+                />
+            </View>
+
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  header: {
-    flex: 0.1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%',
-    paddingHorizontal: '10%',
-//    paddingBottom: '5%',
-    paddingTop: '25%'
-  },
-  headerText: {
-    fontSize: 32
-  },
-  listContainer: {
-    flex: 0.6,
-    width: '100%',
-    paddingLeft: '10%',
-    paddingTop: '10%'
-  },
-  menuContainer: {
-    padding: '5%'
-  },
-  menuText: {
-    fontSize: 32
-  }
-});
+    screen: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center'
+    },
+    header: {
+        flex: 0.1,
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        alignItems: 'center',
+        paddingHorizontal: '10%',
+        paddingTop: '25%',
+        backgroundColor: 'lightblue'
+    },
+    headerText: {
+        fontSize: 28,
+        marginHorizontal: 10,
+    },
+    listContainer: {
+        flex: 0.9,
+        width: '100%',
+        paddingTop: '10%',
+        // alignItems: 'center'
+    },
+    postCard: {
+        backgroundColor: 'white',
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 24,
+        // alignSelf: 'stretch',
+        borderRadius: 10,
+        shadowColor: "#000",
+        // width: '90%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    postTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    postTag: {
+        fontSize: 16,
+        paddingVertical: 10,
+        color: 'blue',
+    },
+    postDiningHall: {
+        fontSize: 14,
+        color: 'gray',
+    },
+})
 
 export default HomeScreen;

@@ -1,77 +1,72 @@
+const ADD_POST = 'ADD_POST';
+const UPDATE_POST = 'UPDATE_POST';
+const DELETE_POST = 'DELETE_POST';
+const LOAD_POSTS = 'LOAD_POSTS';
 
-const ADD_ITEM = 'ADD_ITEM';
-const UPDATE_ITEM = 'UPDATE_ITEM';
-const DELETE_ITEM = 'DELETE_ITEM';
-const LOAD_ITEMS = 'LOAD_ITEMS';
-
-const initListItems = [
-  { text: 'Get costume', key: Date.now() },
-  { text: 'Get candy', key: Date.now() + 1},
-  { text: 'Finish HW5', key: Date.now() + 2},
-];
+const initPosts = [];
 
 const initialState = {
-  listItems: initListItems,
+  posts: initPosts,
 }
 
-const loadItems = (state, items) => {
+const loadPosts = (state, posts) => {
   return {
     ...state,
-    listItems: [...items]
+    posts: [...posts]
   }
 }
 
-const addItem = (state, text, title,tag, key, diningHall) => {
-  let { listItems } = state;
-  let newListItems = listItems.concat({
+const addPost = (state, text, title, tag, key, diningHall) => {
+  let { posts } = state;
+  let newPosts = posts.concat({
     text: text,
     title: title,
-    tag: tag, // Assuming key is the tag in this case
+    tag: tag,
     diningHall: diningHall,
     key: key,
   });
   return {
     ...state,
-    listItems: newListItems,
+    posts: newPosts,
   };
 };
 
-const updateItem = (state, itemId, newText, newTitle, newTag, newDiningHall) => {
-  let { listItems } = state;
-  let newItem = {
+const updatePost = (state, postId, newText, newTitle, newTag, newDiningHall) => {
+  let { posts } = state;
+  let newPost = {
     text: newText,
     title: newTitle,
     tag: newTag,
     diningHall: newDiningHall,
-    key: itemId,
+    key: postId,
   };
-  let newListItems = listItems.map((elem) => (elem.key === itemId ? newItem : elem));
+  let newPosts = posts.map((elem) => (elem.key === postId ? newPost : elem));
   return {
     ...state,
-    listItems: newListItems,
+    posts: newPosts,
   };
 };
 
-const deleteItem = (state, itemId) => {
-  let { listItems } = state;
-  let newListItems = listItems.filter(elem=>elem.key !== itemId);
+const deletePost = (state, postId) => {
+  let { posts } = state;
+  let newPosts = posts.filter(elem=>elem.key !== postId);
   return {
     ...state, 
-    listItems: newListItems
+    posts: newPosts
   }
 }
 
 function rootReducer(state=initialState, action) {
   const { type, payload } = action;
   switch (type) {
-    case ADD_ITEM:
-      return addItem(state, payload.text, payload.title, payload.tag, payload.key, payload.diningHall);
-    case UPDATE_ITEM:
-      return updateItem(state, payload.key, payload.text, payload.title, payload.tag, payload.diningHall);
-    case DELETE_ITEM:
-      return deleteItem(state, payload.key);
-    case LOAD_ITEMS:
-      return loadItems(state, payload.newListItems);
+    case ADD_POST:
+      return addPost(state, payload.text, payload.title, payload.tag, payload.key, payload.diningHall);
+    case UPDATE_POST:
+      return updatePost(state, payload.key, payload.text, payload.title, payload.tag, payload.diningHall);
+    case DELETE_POST:
+      return deletePost(state, payload.key);
+    case LOAD_POSTS:
+      return loadPosts(state, payload.newPosts);
     default:
       return state;
   }
@@ -79,5 +74,5 @@ function rootReducer(state=initialState, action) {
 
 export { 
   rootReducer, 
-  ADD_ITEM, UPDATE_ITEM, DELETE_ITEM, LOAD_ITEMS
+  ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS
 };

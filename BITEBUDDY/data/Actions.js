@@ -1,6 +1,5 @@
-
 import { firebaseConfig } from '../Secrets';
-import { ADD_ITEM, UPDATE_ITEM, DELETE_ITEM, LOAD_ITEMS } from "./Reducer";
+import { ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS } from "./Reducer";
 
 import { initializeApp } from 'firebase/app';
 import { addDoc, updateDoc, deleteDoc,
@@ -9,31 +8,31 @@ import { addDoc, updateDoc, deleteDoc,
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const loadItems = () => {
+const loadPosts = () => {
   return async (dispatch) => {
-    let querySnapshot = await getDocs(collection(db, 'todos'));
-    let newListItems = querySnapshot.docs.map(docSnap => {
+    let querySnapshot = await getDocs(collection(db, 'posts'));
+    let newPosts = querySnapshot.docs.map(docSnap => {
       return {
         ...docSnap.data(),
         key: docSnap.id
       }
     });
-    console.log('loading items:', newListItems);
+    console.log('loading posts:', newPosts);
     dispatch({
-      type: LOAD_ITEMS,
+      type: LOAD_POSTS,
       payload: {
-        newListItems: newListItems
+        newPosts: newPosts
       }
     });
   }
 }
 
-const addItem = (newText,newTitle,newTag,newDiningHall) => {
+const addPost = (newText, newTitle, newTag, newDiningHall) => {
   return async (dispatch) => {
-    const docRef = await addDoc(collection(db, 'todos'), { text: newText, title:newTitle, tag: newTag, diningHall: newDiningHall });
+    const docRef = await addDoc(collection(db, 'posts'), { text: newText, title: newTitle, tag: newTag, diningHall: newDiningHall });
     const id = docRef.id;
     dispatch({
-      type: ADD_ITEM,
+      type: ADD_POST,
       payload: {
         text: newText,
         title: newTitle,
@@ -45,11 +44,11 @@ const addItem = (newText,newTitle,newTag,newDiningHall) => {
   }
 }
 
-const updateItem = (item, newText,newTitle,newTag,newDiningHall) => {
+const updatePost = (post, newText, newTitle, newTag, newDiningHall) => {
   return async (dispatch) => {
-    await updateDoc(doc(db, 'todos', item.key), { text: newText, title:newTitle, tag: newTag, diningHall: newDiningHall});
+    await updateDoc(doc(db, 'posts', post.key), { text: newText, title: newTitle, tag: newTag, diningHall: newDiningHall});
     dispatch({
-      type: UPDATE_ITEM,
+      type: UPDATE_POST,
       payload: {
         text: newText,
         title: newTitle,
@@ -62,18 +61,18 @@ const updateItem = (item, newText,newTitle,newTag,newDiningHall) => {
 };
 
 
-const deleteItem = (item) => {
+const deletePost = (post) => {
   return async (dispatch) => {
-    await deleteDoc(doc(db, 'todos', item.key));
+    await deleteDoc(doc(db, 'posts', post.key));
     dispatch({
-      type: DELETE_ITEM,
+      type: DELETE_POST,
       payload: {
-        key: item.key
+        key: post.key
       }
     })
   };
 }
 
 export {
-  addItem, updateItem, deleteItem, loadItems
+  addPost, updatePost, deletePost, loadPosts
 }
