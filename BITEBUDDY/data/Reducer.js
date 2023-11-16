@@ -16,63 +16,51 @@ const loadPosts = (state, posts) => {
   }
 }
 
-const addPost = (state, text, title, tag, key, diningHall) => {
-  let { posts } = state;
-  let newPosts = posts.concat({
-    text: text,
-    title: title,
-    tag: tag,
-    diningHall: diningHall,
-    key: key,
-  });
+const addPost = (state, action) => {
+  let newPost = action.payload;
+  let newPosts = state.posts.concat(newPost);
   return {
     ...state,
-    posts: newPosts,
-  };
-};
+    posts: newPosts
+  }
+}
 
-const updatePost = (state, postId, newText, newTitle, newTag, newDiningHall) => {
-  let { posts } = state;
-  let newPost = {
-    text: newText,
-    title: newTitle,
-    tag: newTag,
-    diningHall: newDiningHall,
-    key: postId,
-  };
-  let newPosts = posts.map((elem) => (elem.key === postId ? newPost : elem));
+const updatePost = (state, action) => {
+  let { key } = action.payload;
+  const updatedPosts = state.posts.map(post =>
+    post.key === key ? { ...post, ...action.payload } : post
+  );
   return {
     ...state,
-    posts: newPosts,
+    posts: updatedPosts,
   };
 };
 
 const deletePost = (state, postId) => {
   let { posts } = state;
-  let newPosts = posts.filter(elem=>elem.key !== postId);
+  let newPosts = posts.filter(elem => elem.key !== postId);
   return {
-    ...state, 
+    ...state,
     posts: newPosts
   }
 }
 
-function rootReducer(state=initialState, action) {
-  const { type, payload } = action;
-  switch (type) {
+function rootReducer(state = initialState, action) {
+  switch (action.type) {
     case ADD_POST:
-      return addPost(state, payload.text, payload.title, payload.tag, payload.key, payload.diningHall);
+      return addPost(state, action);
     case UPDATE_POST:
-      return updatePost(state, payload.key, payload.text, payload.title, payload.tag, payload.diningHall);
+      return updatePost(state, action);
     case DELETE_POST:
-      return deletePost(state, payload.key);
+      return deletePost(state, action.payload);
     case LOAD_POSTS:
-      return loadPosts(state, payload.newPosts);
+      return loadPosts(state, action.payload.newPosts);
     default:
       return state;
   }
 }
 
-export { 
-  rootReducer, 
+export {
+  rootReducer,
   ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS
 };

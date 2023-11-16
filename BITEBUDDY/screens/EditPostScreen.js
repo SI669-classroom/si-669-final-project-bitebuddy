@@ -19,8 +19,12 @@ function EditPostScreen(props) {
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
   const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
 
-  const handleSavePost = () => {
-    const postKey = isAddingNewPost ? uuidv4() : route.params.postId;
+  const generateUniqueId = () => {
+    return Date.now() + Math.random();
+  };
+
+  const handleSavePost = async () => {
+    const postKey = isAddingNewPost ? generateUniqueId() : route.params.post.key;
     const postDetails = {
       text: inputText,
       title: inputTitle,
@@ -28,17 +32,11 @@ function EditPostScreen(props) {
       diningHall: inputDininghall,
       key: postKey,
     };
-
+    console.log('Dispatching Post Details:', postDetails);
     if (isAddingNewPost) {
-      dispatch({
-        type: 'ADD_POST',
-        payload: postDetails
-      });
+      dispatch(addPost(postDetails));
     } else {
-      dispatch({
-        type: 'UPDATE_POST',
-        payload: postDetails
-      });
+      dispatch(updatePost(postDetails));
     }
     navigation.goBack();
   };

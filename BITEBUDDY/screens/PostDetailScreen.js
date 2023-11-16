@@ -11,10 +11,12 @@ function PostDetailScreen({ route, navigation }) {
   const post = posts.find(p => p.key === postId);
   console.log('post', post)
 
-  // useEffect(() => {
-  //   console.log('post222', post)
-  //   dispatch(loadPosts());
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      dispatch(loadPosts());
+    });
+    return unsubscribe;
+  }, [navigation, dispatch]);
 
   return (
     <View style={styles.screen}>

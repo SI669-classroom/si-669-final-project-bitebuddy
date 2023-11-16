@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Pressable } from "react-native";
@@ -10,24 +11,35 @@ function HomeScreen(props) {
     const { navigation } = props;
     const posts = useSelector((state) => state.posts);
     const dispatch = useDispatch();
+    const [initialLoad, setInitialLoad] = useState(true);
 
     useEffect(() => {
-        dispatch(loadPosts());
-    }, []);
+        if (initialLoad) {
+            dispatch(loadPosts());
+            setInitialLoad(false);
+        }
+        const unsubscribe = navigation.addListener('focus', () => {
+        });
+        return unsubscribe;
+    }, [navigation, dispatch, initialLoad]);
+    console.log('#####', posts.length)
 
     const handleAddPost = () => {
         navigation.navigate('EditPost');
     }
 
-    const renderPost = ({ item }) => (
-        <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
-            <View style={styles.postCard}>
-                <Text style={styles.postTitle}>{item.title}</Text>
-                <Text style={styles.postTag}>{item.tag}</Text>
-                <Text style={styles.postDiningHall}>{item.diningHall}</Text>
-            </View>
-        </TouchableOpacity>
-    );
+    const RenderPost = React.memo(({ item }) => {
+        if (!item) return null;
+        return (
+            <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
+                <View style={styles.postCard}>
+                    <Text style={styles.postTitle}>{item.title}</Text>
+                    <Text style={styles.postTag}>{item.tag}</Text>
+                    <Text style={styles.postDiningHall}>{item.diningHall}</Text>
+                </View>
+            </TouchableOpacity>
+        )
+    })
 
     return (
         <View style={styles.screen}>
@@ -40,7 +52,7 @@ function HomeScreen(props) {
             <View style={styles.listContainer}>
                 <FlatList
                     data={posts}
-                    renderItem={renderPost}
+                    renderItem={({ item }) => <RenderPost item={item} />}
                     keyExtractor={item => item.key}
                 />
             </View>
