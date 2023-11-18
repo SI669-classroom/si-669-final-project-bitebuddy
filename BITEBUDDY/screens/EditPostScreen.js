@@ -17,8 +17,8 @@ function EditPostScreen(props) {
   const [inputTitle, setInputTitle] = useState(isAddingNewPost ? '' : route.params.post.title);
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
-  const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
-
+  // const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
+  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? true : route.params.post.tag === 'active');
   const generateUniqueId = () => {
     return Date.now() + Math.random();
   };
@@ -81,7 +81,8 @@ function EditPostScreen(props) {
               color: "blue",
               fontSize: 20,
               paddingHorizontal: 10,
-              borderWidth: 1,
+              borderBottomWidth: 1,
+              // borderWidth: 1,
               borderColor: 'gray',
               height: 40,
               width: '100%', // Make the width 100%
@@ -91,15 +92,28 @@ function EditPostScreen(props) {
       </View>
 
 
-      <View style={styles.inputContainer}>
+      {/* <View style={styles.inputContainer}>
         <Input
           placeholder='TAG'
           value={inputTag}
           onChangeText={(text) => setInputTag(text)}
           style={styles.inputStyle}
         />
+      </View> */}
+      <View style={styles.tagContainer}>
+        <TouchableOpacity
+          style={[styles.tagLabel, { backgroundColor: isTagActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsTagActive(true)}
+        >
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Active</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tagLabel, { backgroundColor: !isTagActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsTagActive(false)}
+        >
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Inactive</Text>
+        </TouchableOpacity>
       </View>
-
 
       <View style={styles.buttonContainer}>
         <Button
@@ -166,10 +180,18 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   tagContainer: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
+    flex: 0.1,
     flexDirection: 'row',
+    justifyContent: 'left',
+    alignItems: 'center',
+    width: '80%',
+  },
+  selectContainer:{
+    flex: 0.1,
+    flexDirection: 'row',
+    justifyContent: 'left',
+    alignItems: 'center',
+    width: '80%',
   },
   tagLabel: {
     margin: 3,

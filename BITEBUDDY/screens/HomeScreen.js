@@ -34,7 +34,7 @@ function HomeScreen(props) {
             <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
                 <View style={styles.postCard}>
                     <Text style={styles.postTitle}>{item.title}</Text>
-                    <Text style={styles.postTag}>{item.tag}</Text>
+                    <Text style={styles.postTag}>{item.tag ? 'Active' : 'Inactive'}</Text>
                     <Text style={styles.postDiningHall}>{item.diningHall}</Text>
                 </View>
             </TouchableOpacity>
