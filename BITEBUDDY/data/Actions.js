@@ -1,6 +1,6 @@
 import { firebaseConfig } from '../Secrets';
 import { ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS } from "./Reducer";
-
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { initializeApp } from 'firebase/app';
 import {
   addDoc, updateDoc, deleteDoc,
@@ -72,6 +72,17 @@ const deletePost = (postId) => {
   }
 }
 
+const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureData, { dispatch }) => {
+  try {
+    // Perform any additional logic here if needed
+
+    // Dispatch the action with the picture data
+    dispatch({ type: 'SAVE_PICTURE', payload: pictureData });
+  } catch (error) {
+    console.error('Error saving picture:', error);
+  }
+});
+
 export {
-  addPost, updatePost, deletePost, loadPosts
+  addPost, updatePost, deletePost, loadPosts, savePicture
 }

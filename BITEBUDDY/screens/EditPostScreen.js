@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from 'react-redux';
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform } from "react-native";
 import { Input, Button } from "@rneui/themed";
 import { useDispatch } from "react-redux";
 import RNPickerSelect from "react-native-picker-select";
 import { addPost, updatePost } from "../data/Actions";
-import { v4 as uuidv4 } from 'uuid';
 import { diningHallOptions } from "../utils/dininghall";
+import { Image } from 'react-native';
+
 
 function EditPostScreen(props) {
   const { navigation, route } = props;
@@ -18,19 +19,29 @@ function EditPostScreen(props) {
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
   // const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
-  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? true : route.params.post.tag === 'active');
+  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? '' : route.params.post.tag);
   const generateUniqueId = () => {
     return Date.now() + Math.random();
   };
+  const [cameraRef, setCameraRef] = useState(null);
+  const [inputImageURI, setInputImageURI] = useState(
+    isAddingNewPost ? null : route.params.post.imageURI
+  );
+
+  
+  useEffect(() => {
+    console.log('isTagActive changed:', isTagActive);
+  });
 
   const handleSavePost = async () => {
     const postKey = isAddingNewPost ? generateUniqueId() : route.params.post.key;
     const postDetails = {
       text: inputText,
       title: inputTitle,
-      tag: inputTag,
+      tag: isTagActive,
       diningHall: inputDininghall,
       key: postKey,
+      imageURI: inputImageURI,
     };
     console.log('Dispatching Post Details:', postDetails);
     if (isAddingNewPost) {
@@ -40,6 +51,11 @@ function EditPostScreen(props) {
     }
     navigation.goBack();
   };
+  const handleImageUpdate = (imageURI) => {
+    setInputImageURI(imageURI);
+  };
+
+  
 
   return (
     <View style={styles.screen}>
@@ -51,7 +67,8 @@ function EditPostScreen(props) {
           {isAddingNewPost ? 'Create Post' : 'Edit Post'}
         </Text>
       </View>
-      <View style={styles.inputTitle}>
+
+      <View style={styles.inputContainer}>
         <Input
           placeholder='Title'
           value={inputTitle}
@@ -59,8 +76,6 @@ function EditPostScreen(props) {
           style={styles.inputStyle}
         />
       </View>
-
-
 
       <View style={styles.inputContainer}>
         <Input
@@ -78,28 +93,36 @@ function EditPostScreen(props) {
           value={inputDininghall}
           style={{
             inputIOS: {
-              color: "blue",
-              fontSize: 20,
+              color: "black",
+              fontSize: 18,
               paddingHorizontal: 10,
               borderBottomWidth: 1,
-              // borderWidth: 1,
               borderColor: 'gray',
-              height: 40,
-              width: '100%', // Make the width 100%
+              height: 35,
+              width: '100%', 
             },
           }}
         />
       </View>
 
 
-      {/* <View style={styles.inputContainer}>
-        <Input
-          placeholder='TAG'
-          value={inputTag}
-          onChangeText={(text) => setInputTag(text)}
-          style={styles.inputStyle}
-        />
-      </View> */}
+
+      {/* take picutre */}
+      <View style={styles.imageContainer}>
+          {inputImageURI ? (
+            <Image source={{ uri: inputImageURI }} style={styles.image} />
+          ) : (
+            <Image source={require('../assets/ImageNotAvailable.png')} style={styles.image} />
+          )}
+          </View>
+        <View style={styles.buttonContainer1}>
+      <Button onPress={async () => {navigation.navigate('Camera',{onImageUpdate: handleImageUpdate,});}}>
+        Take a picture
+      </Button>
+      </View>
+   
+
+
       <View style={styles.tagContainer}>
         <TouchableOpacity
           style={[styles.tagLabel, { backgroundColor: isTagActive ? 'lightblue' : 'lightgray' }]}
@@ -188,9 +211,10 @@ const styles = StyleSheet.create({
   },
   selectContainer:{
     flex: 0.1,
+    paddingLeft:7,
     flexDirection: 'row',
     justifyContent: 'left',
-    alignItems: 'center',
+    // alignItems: 'center',
     width: '80%',
   },
   tagLabel: {
@@ -201,12 +225,41 @@ const styles = StyleSheet.create({
     borderWidth: 0
   },
   buttonContainer: {
-    flex: 0.1,
+    flex: 0.2,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     width: '80%'
-  }
+  },
+  uploadButton: {
+    fontSize: 18,
+    color: 'blue',
+    marginVertical: 10,
+  },
+
+  cameraButton: {
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',},
+
+  imageContainer: {
+    flex: 0.4,
+    justifyContent: 'center',
+    alignItems: 'center', 
+    width: '100%'
+  },
+  image: {
+    width: '80%',
+    height: '80%',
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
+  defaultImage: {
+    width: '80%',
+    height: '80%',
+    resizeMode: 'cover',
+    borderRadius: 10,
+  },
 });
 
 export default EditPostScreen;
