@@ -1,5 +1,5 @@
 import { firebaseConfig } from '../Secrets';
-import { ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS } from "./Reducer";
+import { ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS,SAVE_PICTURE } from "./Reducer";
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { initializeApp } from 'firebase/app';
 import {
@@ -48,7 +48,8 @@ const updatePost = (postDetails) => {
       text: postDetails.text,
       title: postDetails.title,
       tag: postDetails.tag,
-      diningHall: postDetails.diningHall
+      diningHall: postDetails.diningHall,
+      imageURI: postDetails.imageURI
     });
     console.log('Dispatching from Action:', postDetails);
     dispatch({
@@ -75,6 +76,8 @@ const deletePost = (postId) => {
 const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureData, { dispatch }) => {
   try {
     // Perform any additional logic here if needed
+    const pictureURI = pictureData?.uri; 
+    // console.log('pictureURI', pictureURI);
 
     // Dispatch the action with the picture data
     dispatch({ type: 'SAVE_PICTURE', payload: pictureData });
@@ -84,5 +87,5 @@ const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureData, { dispa
 });
 
 export {
-  addPost, updatePost, deletePost, loadPosts, savePicture
+  addPost, updatePost, deletePost, loadPosts, savePicture,
 }

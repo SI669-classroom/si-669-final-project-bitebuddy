@@ -19,7 +19,7 @@ function EditPostScreen(props) {
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
   // const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
-  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? '' : route.params.post.tag);
+  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? true : route.params.post.tag === 'active');
   const generateUniqueId = () => {
     return Date.now() + Math.random();
   };
@@ -29,9 +29,6 @@ function EditPostScreen(props) {
   );
 
   
-  useEffect(() => {
-    console.log('isTagActive changed:', isTagActive);
-  });
 
   const handleSavePost = async () => {
     const postKey = isAddingNewPost ? generateUniqueId() : route.params.post.key;
@@ -55,7 +52,6 @@ function EditPostScreen(props) {
     setInputImageURI(imageURI);
   };
 
-  
 
   return (
     <View style={styles.screen}>

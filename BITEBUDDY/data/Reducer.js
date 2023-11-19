@@ -2,6 +2,7 @@ const ADD_POST = 'ADD_POST';
 const UPDATE_POST = 'UPDATE_POST';
 const DELETE_POST = 'DELETE_POST';
 const LOAD_POSTS = 'LOAD_POSTS';
+const SAVE_PICTURE = 'SAVE_PICTURE';
 
 const initPosts = [];
 
@@ -44,7 +45,12 @@ const deletePost = (state, postId) => {
     posts: newPosts
   }
 }
-
+const savePicture = (state, action) => {
+  return {
+    ...state,
+    updatedPictureURI: action.payload.uri,
+  };
+};
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case ADD_POST:
@@ -55,6 +61,8 @@ function rootReducer(state = initialState, action) {
       return deletePost(state, action.payload);
     case LOAD_POSTS:
       return loadPosts(state, action.payload.newPosts);
+    case SAVE_PICTURE:
+      return savePicture(state, action);
     default:
       return state;
   }
@@ -62,5 +70,5 @@ function rootReducer(state = initialState, action) {
 
 export {
   rootReducer,
-  ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS
+  ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS, SAVE_PICTURE
 };

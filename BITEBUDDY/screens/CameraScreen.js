@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { savePicture } from '../data/Actions';
 import { useDispatch } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
-
+import { updatePost } from '../data/Actions';
 function CameraScreen({navigation}) {
   
 //   const currentUser = useSelector(state => state.currentUser);
@@ -63,6 +63,11 @@ const dispatch = useDispatch();
     let pictureObject = await theCamera.takePictureAsync({ quality: 0.1 });
     dispatch(savePicture(pictureObject));
     onImageUpdate && onImageUpdate(pictureObject.uri); // Update the image URI in the EditPostScreen
+    const updatedPost = {
+        ...route.params.post,
+        imageURI: pictureObject.uri,
+      };
+      dispatch(updatePost(updatedPost));
     navigation.goBack();
   }}
 >

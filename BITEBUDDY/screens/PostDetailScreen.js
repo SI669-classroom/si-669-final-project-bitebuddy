@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native";
 import { Button } from "@rneui/base";
 import { deletePost, loadPosts } from "../data/Actions";
+import { Image } from 'react-native';
 
 function PostDetailScreen({ route, navigation }) {
   const dispatch = useDispatch();
@@ -34,9 +35,11 @@ function PostDetailScreen({ route, navigation }) {
         <Text style={styles.text}>{post.text}</Text>
         <Text style={styles.diningHall}>{post.diningHall}</Text>
         <Text style={styles.tag}>{post.tag? "Active":"Inactive"}</Text>
+        <Image source={{ uri: post.imageURI }} style={styles.postImage} />
       </View>
       <Button
         title='Delete'
+        style={styles.button}
         buttonStyle={{ backgroundColor: 'red' }}
         onPress={() => {
           dispatch(deletePost(post.key));
@@ -103,6 +106,15 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 10,
   },
+  postImage: {
+    width: '90%', // or specify a fixed width
+    height: '90%',   // or specify a fixed height
+    resizeMode: 'cover', // or 'contain' based on your preference
+    borderRadius: 10,
+  },
+  button: {
+   paddingTop: 200,
+},
 });
 
 export default PostDetailScreen;
