@@ -4,15 +4,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Button, Icon } from '@rneui/themed';
 
 import { Provider, useDispatch } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore,getDefaultMiddleware  } from '@reduxjs/toolkit';
 
 import { rootReducer } from './data/Reducer';
 import HomeScreen from './screens/HomeScreen';
 import PostDetailScreen from './screens/PostDetailScreen';
 import EditPostScreen from './screens/EditPostScreen';
+import CameraScreen from './screens/CameraScreen';
+import thunk from 'redux-thunk';
 
 const store = configureStore({
-  reducer: rootReducer, 
+  reducer: rootReducer,
+  middleware: [...getDefaultMiddleware(), thunk],
 });
 
 function ExploreTabStack() {
@@ -23,6 +26,7 @@ function ExploreTabStack() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name='PostDetail' component={PostDetailScreen}/>
             <Stack.Screen name='EditPost' component={EditPostScreen}/>
+            <Stack.Screen name='Camera' component={CameraScreen}/>
         </Stack.Navigator>
     )
 }
