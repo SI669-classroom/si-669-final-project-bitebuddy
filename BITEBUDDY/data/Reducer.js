@@ -76,26 +76,6 @@ const savePicture = (state, action) => {
   };
 };
 
-const setUserLoggedIn = (state, action) => {
-  return {
-    ...state,
-    auth: {
-      isLoggedIn: true,
-      user: action.payload,
-    }
-  };
-};
-
-const setUserLoggedOut = (state) => {
-  return {
-    ...state,
-    auth: {
-      isLoggedIn: false,
-      user: null,
-    }
-  };
-};
-
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case ADD_POST:
