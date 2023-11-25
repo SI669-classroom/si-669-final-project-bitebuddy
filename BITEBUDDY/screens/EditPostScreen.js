@@ -1,19 +1,46 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { StyleSheet, View, Text, TouchableOpacity, Platform } from "react-native";
 import { Input, Button } from "@rneui/themed";
-import { useDispatch } from "react-redux";
 import RNPickerSelect from "react-native-picker-select";
-import { addPost, updatePost } from "../data/Actions";
+import { addPost, updatePost, subscribeToUserOnSnapshot } from "../data/Actions";
 import { diningHallOptions } from "../utils/dininghall";
 import { Image } from 'react-native';
+import { getAuthUser } from '../data/DB';
 
 
 function EditPostScreen(props) {
   const { navigation, route } = props;
   const isAddingNewPost = !route.params?.post;
 
+  const currentUser = useSelector(state => state.currentUser);
   const dispatch = useDispatch();
+  console.log('000', currentUser.key);
+  // useEffect(() => {
+  //   if (currentUser && currentUser.key) {
+  //     dispatch(subscribeToUserOnSnapshot(currentUser.key));
+  //   } else {
+  //     console.error('Auth user ID is undefined.');
+  //   }
+  // }, [currentUser, dispatch]);
+
+  useEffect(() => {
+    let unsubscribe;
+    if (currentUser && currentUser.key) {
+      unsubscribe = dispatch(subscribeToUserOnSnapshot(currentUser.key));
+    } else {
+      console.error('Auth user ID is undefined.');
+    }
+
+    // Cleanup subscription on component unmount
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [dispatch]);
+
+  const userId = currentUser ? currentUser.key : null;
 
   const [inputTitle, setInputTitle] = useState(isAddingNewPost ? '' : route.params.post.title);
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
@@ -28,7 +55,7 @@ function EditPostScreen(props) {
     isAddingNewPost ? null : route.params.post.imageURI
   );
 
-  
+
 
   const handleSavePost = async () => {
     const postKey = isAddingNewPost ? generateUniqueId() : route.params.post.key;
@@ -39,10 +66,11 @@ function EditPostScreen(props) {
       diningHall: inputDininghall,
       key: postKey,
       imageURI: inputImageURI,
+      userId: userId,
     };
     console.log('Dispatching Post Details:', postDetails);
     if (isAddingNewPost) {
-      dispatch(addPost(postDetails));
+      dispatch(addPost(postDetails, userId));
     } else {
       dispatch(updatePost(postDetails));
     }
@@ -95,7 +123,7 @@ function EditPostScreen(props) {
               borderBottomWidth: 1,
               borderColor: 'gray',
               height: 35,
-              width: '100%', 
+              width: '100%',
             },
           }}
         />
@@ -105,18 +133,18 @@ function EditPostScreen(props) {
 
       {/* take picutre */}
       <View style={styles.imageContainer}>
-          {inputImageURI ? (
-            <Image source={{ uri: inputImageURI }} style={styles.image} />
-          ) : (
-            <Image source={require('../assets/ImageNotAvailable.png')} style={styles.image} />
-          )}
-          </View>
-        <View style={styles.buttonContainer1}>
-      <Button onPress={async () => {navigation.navigate('Camera',{onImageUpdate: handleImageUpdate,});}}>
-        Take a picture
-      </Button>
+        {inputImageURI ? (
+          <Image source={{ uri: inputImageURI }} style={styles.image} />
+        ) : (
+          <Image source={require('../assets/ImageNotAvailable.png')} style={styles.image} />
+        )}
       </View>
-   
+      <View style={styles.buttonContainer1}>
+        <Button onPress={async () => { navigation.navigate('Camera', { onImageUpdate: handleImageUpdate, }); }}>
+          Take a picture
+        </Button>
+      </View>
+
 
 
       <View style={styles.tagContainer}>
@@ -205,9 +233,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '80%',
   },
-  selectContainer:{
+  selectContainer: {
     flex: 0.1,
-    paddingLeft:7,
+    paddingLeft: 7,
     flexDirection: 'row',
     justifyContent: 'left',
     // alignItems: 'center',
@@ -236,12 +264,13 @@ const styles = StyleSheet.create({
   cameraButton: {
     position: 'absolute',
     bottom: 20,
-    alignSelf: 'center',},
+    alignSelf: 'center',
+  },
 
   imageContainer: {
     flex: 0.4,
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
     width: '100%'
   },
   image: {
