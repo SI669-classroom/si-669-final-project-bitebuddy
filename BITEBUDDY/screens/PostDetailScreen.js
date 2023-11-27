@@ -34,9 +34,6 @@ function PostDetailScreen({ route, navigation }) {
           <Text style={styles.headerButton}>&lt; Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerText}>Post Detail</Text>
-        {/* <TouchableOpacity onPress={() => navigation.navigate('EditPost', { post })}>
-          <Text style={styles.headerButton}>Edit</Text>
-        </TouchableOpacity> */}
         {isAuthor && (
           <TouchableOpacity onPress={() => navigation.navigate('EditPost', { post })}>
             <Text style={styles.headerButton}>Edit</Text>
@@ -61,18 +58,6 @@ function PostDetailScreen({ route, navigation }) {
         }
       />
 
-
-      {/* <TouchableOpacity
-        onPress={() => {
-          dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
-          navigation.navigate('ChatMain', {
-            currentUserId: currentAuthUser.uid,
-            otherUserId: post.userId
-          })
-        }}
-      >
-        <Text style={styles.contactButton}>Contact me!</Text>
-      </TouchableOpacity> */}
       {!isAuthor && (
         <TouchableOpacity
           onPress={() => {

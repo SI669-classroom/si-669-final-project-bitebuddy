@@ -6,7 +6,6 @@ import {
   setDoc, addDoc, doc, getFirestore,
   getDocs, collection, query, where, orderBy, onSnapshot
 } from 'firebase/firestore';
-// import { db } from '../firebase'; // assuming you have your Firebase initialization in a separate file
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../Secrets';
 const app = initializeApp(firebaseConfig);
@@ -67,6 +66,7 @@ const ChatDetailScreen = ({ navigation }) => {
   }
 
   const filteredUsers = users.filter((user) =>
+    user.key !== currentUser.key &&
     chats.some(
       (chat) =>
         (chat.participants.includes(currentUser.key) && chat.participants.includes(user.key))
