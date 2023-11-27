@@ -15,7 +15,7 @@ function EditPostScreen(props) {
 
   const currentUser = useSelector(state => state.currentUser);
   const dispatch = useDispatch();
-  console.log('000', currentUser.key);
+  // console.log('000', currentUser.key);
   // useEffect(() => {
   //   if (currentUser && currentUser.key) {
   //     dispatch(subscribeToUserOnSnapshot(currentUser.key));

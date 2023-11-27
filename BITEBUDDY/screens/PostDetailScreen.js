@@ -4,17 +4,23 @@ import { StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native
 import { Button } from "@rneui/base";
 import { deletePost, loadPosts } from "../data/Actions";
 import { Image } from 'react-native';
+import { subscribeToUserUpdates, addOrSelectChat, unsubscribeFromUsers } from '../data/Actions';
+import { getAuthUser, signOut } from '../data/DB';
+
 
 function PostDetailScreen({ route, navigation }) {
   const dispatch = useDispatch();
   const postId = route.params.postId;
   const posts = useSelector((state) => state.posts);
   const post = posts.find(p => p.key === postId);
+  const currentAuthUser = getAuthUser();
   console.log('post', post)
+  const users = useSelector(state => state.users);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       dispatch(loadPosts());
+      dispatch(subscribeToUserUpdates());
     });
     return unsubscribe;
   }, [navigation, dispatch]);
@@ -47,6 +53,47 @@ function PostDetailScreen({ route, navigation }) {
         }
         }
       />
+
+
+      <TouchableOpacity
+        onPress={()=>{
+          // console.log('currentAuthUser', currentAuthUser.uid, post.userId);
+          dispatch(addOrSelectChat(currentAuthUser.uid, post.userId)); // race condition
+          navigation.navigate('Chat', {
+            currentUserId: currentAuthUser.uid, 
+            otherUserId: post.userId
+          })
+        }}
+      >
+        <Text style={styles.contactButton}>Contact me!</Text>
+      </TouchableOpacity> 
+      {/* <View style={styles.listContainer}>
+        <FlatList
+          data={users}
+          renderItem={({item}) => {
+            console.log('item', item);
+            if (item.key === currentAuthUser?.uid) {
+              return (<View/>)
+            } else {
+              return (
+                <TouchableOpacity
+                  onPress={()=>{
+                    console.log('currentAuthUser66', currentAuthUser.uid, item.key);
+                    // console.log('item44', item);
+                    dispatch(addOrSelectChat(currentAuthUser.uid, item.key)); // race condition?
+                    navigation.navigate('Chat', {
+                      currentUserId: currentAuthUser.uid, 
+                      otherUserId: item.key
+                    })
+                  }}
+                >
+                  <Text>{item.displayName}</Text>
+                </TouchableOpacity>
+              )
+            }
+          }}
+        />
+      </View> */}
     </View>
   );
 }
