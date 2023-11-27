@@ -6,9 +6,15 @@ const SAVE_PICTURE = 'SAVE_PICTURE';
 const LOAD_USERS = 'LOAD_USERS';
 const SET_USER = 'SET_USER';
 
+const ADD_USER = 'ADD_USER';
+const SET_CURRENT_USER = 'SET_CURRENT_USER';
+const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
+
 const initialState = {
   posts: [],
-  users: []
+  users: [],
+  messages: [],
+  currentChat: { }
 }
 
 const loadUsers = (state, action) => {
@@ -76,6 +82,31 @@ const savePicture = (state, action) => {
   };
 };
 
+const addUser = (state, payload) => {
+  return {
+    ...state, 
+    users: state.users.concat({...payload.user})
+  }
+}
+
+const setCurrentUser = (state, payload) => {
+  console.log('payload:',payload.currentUser.messages);
+  return {
+    ...state, 
+    currentUser: payload.currentUser
+  }
+}
+
+const setCurrentChat = (state, payload) => {
+  // console.log('Current State:', state);
+  // console.log('Payload:', payload);
+  return {
+    ...state, 
+    currentChat: payload.currentChat
+  }
+}
+
+
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case ADD_POST:
@@ -92,6 +123,13 @@ function rootReducer(state = initialState, action) {
       return loadUsers(state, action);
     case SET_USER:
       return setUser(state, action);
+    // new add
+    case ADD_USER:
+      return addUser(state, action.payload);
+    case SET_CURRENT_USER:
+      return setCurrentUser(state, action.payload);
+    case SET_CURRENT_CHAT:
+        return setCurrentChat(state, action.payload);
     default:
       return state;
   }
@@ -99,5 +137,15 @@ function rootReducer(state = initialState, action) {
 
 export {
   rootReducer,
-  ADD_POST, UPDATE_POST, DELETE_POST, LOAD_POSTS, SAVE_PICTURE, LOAD_USERS, SET_USER
+  ADD_POST, 
+  UPDATE_POST, 
+  DELETE_POST, 
+  LOAD_POSTS, 
+  SAVE_PICTURE, 
+  LOAD_USERS, 
+  SET_USER,
+
+  ADD_USER,
+  SET_CURRENT_USER, 
+  SET_CURRENT_CHAT 
 };
