@@ -50,6 +50,12 @@ function HomeScreen(props) {
         ? posts.filter(post => post.diningHall.toLowerCase().includes(filterDiningHall.toLowerCase()))
         : posts;
 
+    const sortedPosts = filteredPosts.sort((a, b) => {
+        const dateA = new Date(a.lastUpdated);
+        const dateB = new Date(b.lastUpdated);
+        return dateB - dateA;
+    });
+
     const RenderPost = React.memo(({ item }) => {
         const user = users.find((user) => user.key === item.userId);
         if (!item) return null;
@@ -102,7 +108,7 @@ function HomeScreen(props) {
             </View>
 
             <ScrollView style={styles.listContainer}>
-                {filteredPosts.map((item, index) => (
+                {sortedPosts.map((item, index) => (
                     <RenderPost key={index} item={item} />
                 ))}
             </ScrollView>
