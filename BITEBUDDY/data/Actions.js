@@ -100,18 +100,56 @@ const subscribeToUserOnSnapshot = (userId) => {
 }
 
 
+// const loadPosts = () => {
+//   return async (dispatch) => {
+//     let querySnapshot = await getDocs(collection(db, 'posts'));
+//     let newPosts = querySnapshot.docs.map(docSnap => {
+//       const data = docSnap.data();
+//       return {
+//         ...data,
+//         key: docSnap.id,
+//         lastUpdated: typeof data.lastUpdated === 'string' ? data.lastUpdated : convertTimestamp(data.lastUpdated)?.toISOString()
+//       }
+//     });
+//     console.log('loading posts:', newPosts);
+//     dispatch({
+//       type: LOAD_POSTS,
+//       payload: {
+//         newPosts: newPosts
+//       }
+//     });
+//   }
+// }
+
+// Actions.js
+
 const loadPosts = () => {
   return async (dispatch) => {
     let querySnapshot = await getDocs(collection(db, 'posts'));
-    let newPosts = querySnapshot.docs.map(docSnap => {
-      const data = docSnap.data();
-      return {
+    let newPosts = [];
+    let updates = [];
+
+    querySnapshot.forEach(docSnap => {
+      let data = docSnap.data();
+      let postData = {
         ...data,
         key: docSnap.id,
         lastUpdated: typeof data.lastUpdated === 'string' ? data.lastUpdated : convertTimestamp(data.lastUpdated)?.toISOString()
+      };
+
+      // Check if the post is active and the activeUntil time has passed
+      if (postData.isActive && postData.activeUntil && new Date(postData.activeUntil) < new Date()) {
+        // Update the post to inactive
+        updates.push(updateDoc(doc(db, 'posts', docSnap.id), { isActive: false }));
+        postData.isActive = false;
       }
+
+      newPosts.push(postData);
     });
-    console.log('loading posts:', newPosts);
+
+    // Wait for all updates to complete
+    await Promise.all(updates);
+
     dispatch({
       type: LOAD_POSTS,
       payload: {
@@ -120,6 +158,7 @@ const loadPosts = () => {
     });
   }
 }
+
 
 const loadUserPosts = (userId) => {
   return async (dispatch) => {
@@ -155,6 +194,8 @@ const addPost = (postDetails, userId) => {
       ...postDetails,
       userId,
       lastUpdated: new Date().toISOString(),
+      isActive: postDetails.isActive,
+      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
       diningTime: postDetails.diningTime ? postDetails.diningTime : null,
     };
 
@@ -177,11 +218,12 @@ const updatePost = (postDetails) => {
     await updateDoc(doc(db, 'posts', postDetails.key), {
       text: postDetails.text,
       title: postDetails.title,
-      tag: postDetails.tag,
       diningHall: postDetails.diningHall,
       diningTime: postDetails.diningTime ? postDetails.diningTime : null,
       imageURI: postDetails.imageURI,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      isActive: postDetails.isActive,
+      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
     });
     console.log('Dispatching from Action:', postDetails);
     dispatch({

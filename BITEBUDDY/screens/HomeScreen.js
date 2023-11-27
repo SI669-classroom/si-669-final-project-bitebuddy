@@ -72,7 +72,7 @@ function HomeScreen(props) {
                         <Text style={styles.userName}>{user?.displayName || 'Unknown User'}</Text>
                     </View>
                     <Text style={styles.postTitle}>{item.title}</Text>
-                    <Text style={styles.postTag}>{item.tag ? 'Active' : 'Inactive'}</Text>
+                    <Text style={styles.postTag}>{item.isActive ? 'Active' : 'Inactive'}</Text>
                     <Text style={styles.postDiningHall}>{item.diningHall}</Text>
                     <Text style={styles.diningTimeText}>
                         Dining Time: {formattedDiningTime}

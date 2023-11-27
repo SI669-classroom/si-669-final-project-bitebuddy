@@ -44,7 +44,7 @@ function PostDetailScreen({ route, navigation }) {
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.text}>{post.text}</Text>
         <Text style={styles.diningHall}>{post.diningHall}</Text>
-        <Text style={styles.tag}>{post.tag ? "Active" : "Inactive"}</Text>
+        <Text style={styles.tag}>{post.isActive ? "Active" : "Inactive"}</Text>
         <Image source={{ uri: post.imageURI }} style={styles.postImage} />
       </View>
       <Button

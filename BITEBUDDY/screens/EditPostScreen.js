@@ -37,7 +37,6 @@ function EditPostScreen(props) {
   const [inputTitle, setInputTitle] = useState(isAddingNewPost ? '' : route.params.post.title);
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
-  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? true : route.params.post.tag === 'active');
   const generateUniqueId = () => {
     return Date.now() + Math.random();
   };
@@ -46,7 +45,16 @@ function EditPostScreen(props) {
     isAddingNewPost ? null : route.params.post.imageURI
   );
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [diningTime, setDiningTime] = useState(new Date());
+  const [diningTime, setDiningTime] = useState(
+    isAddingNewPost ? new Date() : new Date(route.params.post.diningTime)
+  );
+
+  const [isActive, setIsActive] = useState(isAddingNewPost ? true : route.params.post.isActive);
+  const [activeUntil, setActiveUntil] = useState(
+    isAddingNewPost ? new Date() : new Date(route.params.post.activeUntil)
+  );
+  const [isActivePickerVisible, setActivePickerVisibility] = useState(false);
+
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -62,6 +70,21 @@ function EditPostScreen(props) {
     hideDatePicker();
   };
 
+  const showActivePicker = () => {
+    setActivePickerVisibility(true);
+  };
+
+  const hideActivePicker = () => {
+    setActivePickerVisibility(false);
+  };
+
+  const handleActiveUntilConfirm = (date) => {
+    console.log("Active Until date has been picked: ", date);
+    setActiveUntil(date);
+    hideActivePicker();
+  };
+
+
   const formatDateTime = (date) => {
     return format(date, 'MM-dd-yyyy hh:mm a'); // Example format: 'Jun 23, 2020, 7:30 PM'
   };
@@ -71,9 +94,10 @@ function EditPostScreen(props) {
     const postDetails = {
       text: inputText,
       title: inputTitle,
-      tag: isTagActive,
+      isActive: isActive,
       diningHall: inputDininghall,
       diningTime: diningTime.toISOString(),
+      activeUntil: isActive ? activeUntil.toISOString() : null,
       key: postKey,
       imageURI: inputImageURI,
       userId: userId,
@@ -169,18 +193,35 @@ function EditPostScreen(props) {
 
       <View style={styles.tagContainer}>
         <TouchableOpacity
-          style={[styles.tagLabel, { backgroundColor: isTagActive ? 'lightblue' : 'lightgray' }]}
-          onPress={() => setIsTagActive(true)}
+          style={[styles.tagLabel, { backgroundColor: isActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsActive(true)}
         >
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Active</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tagLabel, { backgroundColor: !isTagActive ? 'lightblue' : 'lightgray' }]}
-          onPress={() => setIsTagActive(false)}
+          style={[styles.tagLabel, { backgroundColor: !isActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsActive(false)}
         >
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Inactive</Text>
         </TouchableOpacity>
       </View>
+      {isActive && (
+        <>
+          <Button title="Set Active Until" onPress={showActivePicker} />
+          <Text>Your post will be visible to others until: {format(activeUntil, 'MM-dd-yyyy hh:mm a')}</Text>
+          <DateTimePickerModal
+            isVisible={isActivePickerVisible}
+            mode="datetime"
+            onConfirm={handleActiveUntilConfirm}
+            onCancel={hideActivePicker}
+            date={activeUntil}
+            is24Hour={true}
+          />
+        </>
+      )}
+      {!isActive && (
+        <Text style={styles.inactiveMessage}>Your post will not be visible to others.</Text>
+      )}
 
       <View style={styles.buttonContainer}>
         <Button
