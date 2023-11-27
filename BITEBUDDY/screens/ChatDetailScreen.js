@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { addOrSelectChat, subscribeToUserUpdates } from '../data/Actions';
-import { setDoc, addDoc, doc, getFirestore,
-  getDocs, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import {
+  setDoc, addDoc, doc, getFirestore,
+  getDocs, collection, query, where, orderBy, onSnapshot
+} from 'firebase/firestore';
 // import { db } from '../firebase'; // assuming you have your Firebase initialization in a separate file
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../Secrets';
@@ -40,7 +42,7 @@ const ChatDetailScreen = ({ navigation }) => {
         collection(db, 'chats'),
         where('participants', 'array-contains', currentUser.key)  // Use currentUser.key directly
       );
-      
+
       const results = await getDocs(chatQuery);
       const chats = results.docs.map((chatSnap) => {
         return {
@@ -65,11 +67,11 @@ const ChatDetailScreen = ({ navigation }) => {
   }
 
   const filteredUsers = users.filter((user) =>
-  chats.some(
-    (chat) =>
-      (chat.participants.includes(currentUser.key) && chat.participants.includes(user.key))
-  )
-);
+    chats.some(
+      (chat) =>
+        (chat.participants.includes(currentUser.key) && chat.participants.includes(user.key))
+    )
+  );
 
   return (
     <View style={styles.container}>
@@ -83,7 +85,7 @@ const ChatDetailScreen = ({ navigation }) => {
             onPress={() => {
               dispatch(addOrSelectChat(currentUser.key, item.key));
               console.log("dispatch success!!")
-              navigation.navigate('Chat', {
+              navigation.navigate('ChatMain', {
                 currentUserId: currentUser.key,
                 otherUserId: item.key,
               });

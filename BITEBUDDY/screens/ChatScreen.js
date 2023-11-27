@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addCurrentChatMessage, unsubscribeFromChat } from '../data/Actions';
 
 
-function ChatScreen({navigation, route}) {
-  console.log('route:',route);
-  const {currentUserId, otherUserId} = route.params;
+function ChatScreen({ navigation, route }) {
+  console.log('route:', route);
+  const { currentUserId, otherUserId } = route.params;
 
   //  const [messages, setMessages] = useState(dummyChat);
   const [inputText, setInputText] = useState('');
@@ -15,9 +15,9 @@ function ChatScreen({navigation, route}) {
   const currentChat = useSelector(state => state.currentChat);
   console.log('currentChat89', currentChat);
   console.log('currentUserId', currentUserId);
-  const currentUser = useSelector(state => state.users.find(u=>u.key===currentUserId));
-  const otherUser = useSelector(state => state.users.find(u=>u.key===otherUserId));
-  console.log('currentChat90', currentUser,otherUser);
+  const currentUser = useSelector(state => state.users.find(u => u.key === currentUserId));
+  const otherUser = useSelector(state => state.users.find(u => u.key === otherUserId));
+  console.log('currentChat90', currentUser, otherUser);
   // const currentUser = useSelector(state => state.users.find(u => u.key === currentUserId)) || {};
   // const otherUser = useSelector(state => state.users.find(u => u.key === otherUserId)) || {};
 
@@ -29,84 +29,85 @@ function ChatScreen({navigation, route}) {
     // other code...
   }, [currentChat]);
 
-  useEffect(()=>{
-    return ()=>{
+  useEffect(() => {
+    return () => {
       unsubscribeFromChat();
     }
   }, []);
 
   return (
     <View style={styles.container} >
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior='position'>
-      <View style={styles.header}>
-        <TouchableOpacity 
+        <View style={styles.header}>
+          <TouchableOpacity
             style={styles.headerLeft}
-            onPress={()=>navigation.navigate('Home')}>
-          <Icon
-            name="arrow-back"
-            color="black"
-            type="material"
-            size={32}
-          />
-        </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerText}>Chat with {otherUser.displayName} </Text>
-        </View>
-        <View style={styles.headerRight}>
+            onPress={() => navigation.navigate('ChatDetail')}>
 
+            <Icon
+              name="arrow-back"
+              color="black"
+              type="material"
+              size={32}
+            />
+          </TouchableOpacity>
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerText}>Chat with {otherUser.displayName} </Text>
+          </View>
+          <View style={styles.headerRight}>
+
+          </View>
         </View>
-      </View>
-      <View style={styles.body}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-        >
-          {messages.map(msg => {
-            return (
-              <View 
-                key={msg.timestamp}
-                style={[styles.messageBubble, 
+        <View style={styles.body}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+          >
+            {messages.map(msg => {
+              return (
+                <View
+                  key={msg.timestamp}
+                  style={[styles.messageBubble,
                   msg.author === currentUser.key ?
-                  styles.self :
-                  styles.other 
-                ]}>
-                <Text style={styles.messageText}>{msg.message}</Text>
-              </View>
-            )
-          })}
-        </ScrollView>
-      </View>
-      <View style={styles.footer}>
-        <Input
-          containerStyle={styles.inputBox}
-          placeholder="Enter chat message"
-          value={inputText}
-          onChangeText={text=>setInputText(text)}
-        />
-        <Button
-          buttonStyle={styles.sendButton}
-          onPress={()=>{
-            dispatch(addCurrentChatMessage({
-              author: currentUser.key,
-              message: inputText,
-              timestamp: new Date()
-            }))
-            // setMessages(messages.concat({
-            //   author: currentUser,
-            //   message: inputText,
-            //   timestamp: Date.now()
-            // }));
-            setInputText('');
-          }}
-        >
-          <Icon 
-            name="send"
-            size={32}
-            color="purple"  
+                    styles.self :
+                    styles.other
+                  ]}>
+                  <Text style={styles.messageText}>{msg.message}</Text>
+                </View>
+              )
+            })}
+          </ScrollView>
+        </View>
+        <View style={styles.footer}>
+          <Input
+            containerStyle={styles.inputBox}
+            placeholder="Enter chat message"
+            value={inputText}
+            onChangeText={text => setInputText(text)}
           />
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+          <Button
+            buttonStyle={styles.sendButton}
+            onPress={() => {
+              dispatch(addCurrentChatMessage({
+                author: currentUser.key,
+                message: inputText,
+                timestamp: new Date()
+              }))
+              // setMessages(messages.concat({
+              //   author: currentUser,
+              //   message: inputText,
+              //   timestamp: Date.now()
+              // }));
+              setInputText('');
+            }}
+          >
+            <Icon
+              name="send"
+              size={32}
+              color="purple"
+            />
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   )
 }
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   header: {
     flex: 0.1,
     flexDirection: 'row',
-    justifyContent: 'center', 
+    justifyContent: 'center',
     alignItems: 'flex-end',
     width: '100%',
     padding: '3%'
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 0.2,
     justifyContent: 'flex-end',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   headerCenter: {
     flex: 0.6,
@@ -148,14 +149,14 @@ const styles = StyleSheet.create({
   body: {
     flex: 0.8,
     width: '100%',
-    justifyContent: 'flex-end', 
+    justifyContent: 'flex-end',
     alignItems: 'stretch',
     padding: '3%',
   },
   scrollContainer: {
-    flex: 1.0, 
+    flex: 1.0,
     width: '100%',
-    justifyContent: 'flex-end', 
+    justifyContent: 'flex-end',
     alignItems: 'stretch',
     padding: '3%',
   },
@@ -175,10 +176,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray'
   },
   footer: {
-    flex: 0.1, 
+    flex: 0.1,
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     alignItems: 'flex-start',
     padding: '3%'
   },

@@ -40,7 +40,7 @@ function PostDetailScreen({ route, navigation }) {
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.text}>{post.text}</Text>
         <Text style={styles.diningHall}>{post.diningHall}</Text>
-        <Text style={styles.tag}>{post.tag? "Active":"Inactive"}</Text>
+        <Text style={styles.tag}>{post.tag ? "Active" : "Inactive"}</Text>
         <Image source={{ uri: post.imageURI }} style={styles.postImage} />
       </View>
       <Button
@@ -56,44 +56,17 @@ function PostDetailScreen({ route, navigation }) {
 
 
       <TouchableOpacity
-        onPress={()=>{
+        onPress={() => {
           // console.log('currentAuthUser', currentAuthUser.uid, post.userId);
           dispatch(addOrSelectChat(currentAuthUser.uid, post.userId)); // race condition
-          navigation.navigate('Chat', {
-            currentUserId: currentAuthUser.uid, 
+          navigation.navigate('ChatMain', {
+            currentUserId: currentAuthUser.uid,
             otherUserId: post.userId
           })
         }}
       >
         <Text style={styles.contactButton}>Contact me!</Text>
-      </TouchableOpacity> 
-      {/* <View style={styles.listContainer}>
-        <FlatList
-          data={users}
-          renderItem={({item}) => {
-            console.log('item', item);
-            if (item.key === currentAuthUser?.uid) {
-              return (<View/>)
-            } else {
-              return (
-                <TouchableOpacity
-                  onPress={()=>{
-                    console.log('currentAuthUser66', currentAuthUser.uid, item.key);
-                    // console.log('item44', item);
-                    dispatch(addOrSelectChat(currentAuthUser.uid, item.key)); // race condition?
-                    navigation.navigate('Chat', {
-                      currentUserId: currentAuthUser.uid, 
-                      otherUserId: item.key
-                    })
-                  }}
-                >
-                  <Text>{item.displayName}</Text>
-                </TouchableOpacity>
-              )
-            }
-          }}
-        />
-      </View> */}
+      </TouchableOpacity>
     </View>
   );
 }
@@ -160,8 +133,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   button: {
-   paddingTop: 200,
-},
+    paddingTop: 200,
+  },
 });
 
 export default PostDetailScreen;

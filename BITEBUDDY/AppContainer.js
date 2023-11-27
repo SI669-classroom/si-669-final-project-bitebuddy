@@ -40,8 +40,6 @@ function ExploreTabStack() {
       <Stack.Screen name='PostDetail' component={PostDetailScreen} />
       <Stack.Screen name='EditPost' component={EditPostScreen} />
       <Stack.Screen name='Camera' component={CameraScreen} />
-      <Stack.Screen name='Chat' component={ChatScreen}/>
-      <Stack.Screen name='ChatDetail' component={ChatDetailScreen}/>
     </Stack.Navigator>
   )
 }
@@ -55,31 +53,12 @@ function MyPostsTabStack() {
   )
 }
 
-// function ChatTabStack({ navigation }) {
-//   const Tab = createBottomTabNavigator();
-
-//   return (
-//     <Tab.Navigator
-//       initialRouteName="ChatDetail"
-//       screenOptions={{ headerShown: false }}
-//     >
-//       <Tab.Screen
-//         name="ChatDetail"
-//         component={ChatDetailScreen}
-//       />
-//       <Tab.Screen
-//         name="Chat"
-//         component={ChatScreen}
-//       />
-//     </Tab.Navigator>
-//   );
-// }
 function ChatStackNavigator() {
   const Stack = createNativeStackNavigator();
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName='ChatDetail' screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
-      <Stack.Screen name="Chat" component={ChatScreen} />
+      <Stack.Screen name="ChatMain" component={ChatScreen} />
     </Stack.Navigator>
   );
 }
