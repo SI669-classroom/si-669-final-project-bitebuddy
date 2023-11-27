@@ -16,6 +16,8 @@ function PostDetailScreen({ route, navigation }) {
   const currentAuthUser = getAuthUser();
   console.log('post', post)
   const users = useSelector(state => state.users);
+  const isAuthor = post.userId === currentAuthUser.uid;
+  console.log('isAuthor?', isAuthor);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -32,9 +34,14 @@ function PostDetailScreen({ route, navigation }) {
           <Text style={styles.headerButton}>&lt; Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerText}>Post Detail</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('EditPost', { post })}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('EditPost', { post })}>
           <Text style={styles.headerButton}>Edit</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        {isAuthor && (
+          <TouchableOpacity onPress={() => navigation.navigate('EditPost', { post })}>
+            <Text style={styles.headerButton}>Edit</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.body}>
         <Text style={styles.title}>{post.title}</Text>
@@ -55,10 +62,9 @@ function PostDetailScreen({ route, navigation }) {
       />
 
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => {
-          // console.log('currentAuthUser', currentAuthUser.uid, post.userId);
-          dispatch(addOrSelectChat(currentAuthUser.uid, post.userId)); // race condition
+          dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
           navigation.navigate('ChatMain', {
             currentUserId: currentAuthUser.uid,
             otherUserId: post.userId
@@ -66,7 +72,20 @@ function PostDetailScreen({ route, navigation }) {
         }}
       >
         <Text style={styles.contactButton}>Contact me!</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      {!isAuthor && (
+        <TouchableOpacity
+          onPress={() => {
+            dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
+            navigation.navigate('ChatMain', {
+              currentUserId: currentAuthUser.uid,
+              otherUserId: post.userId
+            });
+          }}
+        >
+          <Text style={styles.contactButton}>Contact me!</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
