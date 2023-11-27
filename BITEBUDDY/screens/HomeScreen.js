@@ -8,6 +8,7 @@ import { Image } from 'react-native';
 import { loadPosts, loadUsers } from "../data/Actions";
 import RNPickerSelect from "react-native-picker-select";
 import { diningHallOptions } from "../utils/dininghall";
+import Avatar from "../components/Avatar";
 
 function HomeScreen(props) {
     const { navigation } = props;
@@ -58,7 +59,8 @@ function HomeScreen(props) {
             <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
                 <View style={styles.postCard}>
                     <View style={styles.postHeader}>
-                        <FontAwesome5 name="user-circle" size={24} color="black" />
+                        <Avatar username={user?.displayName} />
+                        {/* <FontAwesome5 name="user-circle" size={24} color="black" /> */}
                         <Text style={styles.userName}>{user?.displayName || 'Unknown User'}</Text>
                     </View>
                     <Text style={styles.postTitle}>{item.title}</Text>
