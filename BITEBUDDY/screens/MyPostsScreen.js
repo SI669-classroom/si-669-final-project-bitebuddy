@@ -6,6 +6,7 @@ import { Image } from 'react-native';
 import { loadPosts, loadUsers } from "../data/Actions";
 import Avatar from "../components/Avatar";
 import { getAuthUser, signOut } from '../data/DB';
+import { format } from 'date-fns';
 
 function MyPostsScreen(props) {
     const { navigation } = props;
@@ -42,6 +43,7 @@ function MyPostsScreen(props) {
 
     const RenderPost = React.memo(({ item }) => {
         const formattedDate = item.lastUpdated ? formatDate(item.lastUpdated) : 'Unknown';
+        const formattedDiningTime = item.diningTime ? format(new Date(item.diningTime), 'MM-dd-yyyy hh:mm a') : 'Not specified';
 
         return (
             <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
@@ -51,8 +53,11 @@ function MyPostsScreen(props) {
                         <Text style={styles.userName}>{currentUser.displayName || 'Unknown User'}</Text>
                     </View>
                     <Text style={styles.postTitle}>{item.title}</Text>
-                    <Text style={styles.postTag}>{item.tag ? 'Active' : 'Inactive'}</Text>
+                    <Text style={styles.postTag}>{item.isActive ? 'Active' : 'Inactive'}</Text>
                     <Text style={styles.postDiningHall}>{item.diningHall}</Text>
+                    <Text style={styles.diningTimeText}>
+                        Dining Time: {formattedDiningTime}
+                    </Text>
                     {item.imageURI ? (
                         <Image source={{ uri: item.imageURI }} style={styles.postImage} />
                     ) : null}

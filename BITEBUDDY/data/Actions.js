@@ -4,7 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { initializeApp } from 'firebase/app';
 import {
   addDoc, updateDoc, deleteDoc, onSnapshot, getDoc,
-  getDocs, doc, collection, getFirestore, setDoc, serverTimestamp,query, where, orderBy
+  getDocs, doc, collection, getFirestore, setDoc, serverTimestamp, query, where, orderBy
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -100,18 +100,56 @@ const subscribeToUserOnSnapshot = (userId) => {
 }
 
 
+// const loadPosts = () => {
+//   return async (dispatch) => {
+//     let querySnapshot = await getDocs(collection(db, 'posts'));
+//     let newPosts = querySnapshot.docs.map(docSnap => {
+//       const data = docSnap.data();
+//       return {
+//         ...data,
+//         key: docSnap.id,
+//         lastUpdated: typeof data.lastUpdated === 'string' ? data.lastUpdated : convertTimestamp(data.lastUpdated)?.toISOString()
+//       }
+//     });
+//     console.log('loading posts:', newPosts);
+//     dispatch({
+//       type: LOAD_POSTS,
+//       payload: {
+//         newPosts: newPosts
+//       }
+//     });
+//   }
+// }
+
+// Actions.js
+
 const loadPosts = () => {
   return async (dispatch) => {
     let querySnapshot = await getDocs(collection(db, 'posts'));
-    let newPosts = querySnapshot.docs.map(docSnap => {
-      const data = docSnap.data();
-      return {
+    let newPosts = [];
+    let updates = [];
+
+    querySnapshot.forEach(docSnap => {
+      let data = docSnap.data();
+      let postData = {
         ...data,
         key: docSnap.id,
         lastUpdated: typeof data.lastUpdated === 'string' ? data.lastUpdated : convertTimestamp(data.lastUpdated)?.toISOString()
+      };
+
+      // Check if the post is active and the activeUntil time has passed
+      if (postData.isActive && postData.activeUntil && new Date(postData.activeUntil) < new Date()) {
+        // Update the post to inactive
+        updates.push(updateDoc(doc(db, 'posts', docSnap.id), { isActive: false }));
+        postData.isActive = false;
       }
+
+      newPosts.push(postData);
     });
-    console.log('loading posts:', newPosts);
+
+    // Wait for all updates to complete
+    await Promise.all(updates);
+
     dispatch({
       type: LOAD_POSTS,
       payload: {
@@ -120,6 +158,7 @@ const loadPosts = () => {
     });
   }
 }
+
 
 const loadUserPosts = (userId) => {
   return async (dispatch) => {
@@ -154,7 +193,10 @@ const addPost = (postDetails, userId) => {
     const newPostDetails = {
       ...postDetails,
       userId,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      isActive: postDetails.isActive,
+      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
+      diningTime: postDetails.diningTime ? postDetails.diningTime : null,
     };
 
     postDetails.userId = userId;
@@ -176,10 +218,12 @@ const updatePost = (postDetails) => {
     await updateDoc(doc(db, 'posts', postDetails.key), {
       text: postDetails.text,
       title: postDetails.title,
-      tag: postDetails.tag,
       diningHall: postDetails.diningHall,
+      diningTime: postDetails.diningTime ? postDetails.diningTime : null,
       imageURI: postDetails.imageURI,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      isActive: postDetails.isActive,
+      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
     });
     console.log('Dispatching from Action:', postDetails);
     dispatch({
@@ -220,7 +264,7 @@ const subscribeToUserUpdates = () => {
     usersSnapshotUnsub();
   }
   return (dispatch) => {
-    usersSnapshotUnsub =  onSnapshot(collection(db, 'users'), usersSnapshot => {
+    usersSnapshotUnsub = onSnapshot(collection(db, 'users'), usersSnapshot => {
       const updatedUsers = usersSnapshot.docs.map(uSnap => {
         console.log(uSnap.data());
         return uSnap.data(); // already has key?
@@ -241,81 +285,81 @@ const addOrSelectChat = (user1id, user2id) => {
     try {
       // ... existing async code ...
       const chatQuery = query(collection(db, 'chats'),
-      where('participants', 'array-contains', user1id),
-    );
-    const results = await getDocs(chatQuery);
-    /*
-      Ideally we would do this:
-      const chatQuery = query(
-        collection(db, 'chats'),
         where('participants', 'array-contains', user1id),
-        where('participants', 'array-contains', user2id)
       );
-      but Firestore doesn't allow more than one 'array-contains'
-      where clauses in a single query. So instead we do the 
-      second 'array-contains' clause "manually"
-    );
-    */
-    chatSnap = results.docs?.find(
-        elem=>elem.data().participants.includes(user2id));
-    // console.log('chatSnap', chatSnap);
-    let theChat;
-    console.log('chatSnap66', chatSnap);
-    if (!chatSnap) { //; we didn't find a match, create a new one
-      theChat = {
-        participants: [user1id, user2id],
+      const results = await getDocs(chatQuery);
+      /*
+        Ideally we would do this:
+        const chatQuery = query(
+          collection(db, 'chats'),
+          where('participants', 'array-contains', user1id),
+          where('participants', 'array-contains', user2id)
+        );
+        but Firestore doesn't allow more than one 'array-contains'
+        where clauses in a single query. So instead we do the 
+        second 'array-contains' clause "manually"
+      );
+      */
+      chatSnap = results.docs?.find(
+        elem => elem.data().participants.includes(user2id));
+      // console.log('chatSnap', chatSnap);
+      let theChat;
+      console.log('chatSnap66', chatSnap);
+      if (!chatSnap) { //; we didn't find a match, create a new one
+        theChat = {
+          participants: [user1id, user2id],
+        }
+        const chatRef = await addDoc(collection(db, 'chats'), theChat);
+        theChat.id = chatRef.id
+      } else { // we did find a match, so let's use it.
+        theChat = {
+          ...chatSnap.data(),
+          id: chatSnap.id
+        }
       }
-      const chatRef = await addDoc(collection(db, 'chats'), theChat);
-      theChat.id = chatRef.id
-    } else { // we did find a match, so let's use it.
-      theChat = {
-        ...chatSnap.data(),
-        id: chatSnap.id
+      // console.log('theChat', theChat);
+      // const initialState = getState();
+      // console.log('Initial State:', initialState);
+      console.log('Executing addOrSelectChat');
+      dispatch({
+        type: SET_CURRENT_CHAT, // Add this line
+        payload: {
+          currentChat: theChat
+        },
+      }); // initial dispatch
+
+
+      if (chatSnapshotUnsub) {
+        chatSnapshotUnsub();
+        chatSnapshotUnsub = undefined;
       }
-    }
-    // console.log('theChat', theChat);
-    // const initialState = getState();
-    // console.log('Initial State:', initialState);
-    console.log('Executing addOrSelectChat');
-    dispatch({
-      type: SET_CURRENT_CHAT, // Add this line
-      payload: {
-        currentChat: theChat
-      },
-    }); // initial dispatch
 
-
-    if (chatSnapshotUnsub) {
-      chatSnapshotUnsub();
-      chatSnapshotUnsub = undefined;
-    }
-
-    const q = query(
-      collection(db, 'chats', theChat.id, 'messages'),
-      orderBy('timestamp', 'asc')
-    );
-    chatSnapshotUnsub = onSnapshot(
-      q, 
-      (messagesSnapshot) => {
-        const messages = messagesSnapshot.docs.map(msgSnap => {
-          const message = msgSnap.data();
-          return {
-            ...message,
-            timestamp: message.timestamp.seconds,
-            id: msgSnap.id
-          }
-        });
-        dispatch({
-          type: SET_CURRENT_CHAT,
-          payload: {
-            currentChat: {
-              ...theChat,
-              messages: messages
+      const q = query(
+        collection(db, 'chats', theChat.id, 'messages'),
+        orderBy('timestamp', 'asc')
+      );
+      chatSnapshotUnsub = onSnapshot(
+        q,
+        (messagesSnapshot) => {
+          const messages = messagesSnapshot.docs.map(msgSnap => {
+            const message = msgSnap.data();
+            return {
+              ...message,
+              timestamp: message.timestamp.seconds,
+              id: msgSnap.id
             }
-          }
-        })
-      }
-    );
+          });
+          dispatch({
+            type: SET_CURRENT_CHAT,
+            payload: {
+              currentChat: {
+                ...theChat,
+                messages: messages
+              }
+            }
+          })
+        }
+      );
     } catch (error) {
       console.error("An error occurred: ", error);
       // Handle the error appropriately
@@ -348,18 +392,18 @@ const unsubscribeFromChat = () => {
 }
 
 export {
-  addUser, 
-  addPost, 
+  addUser,
+  addPost,
   updatePost,
-  deletePost, 
-  loadPosts, 
-  savePicture, 
-  setUser, 
-  subscribeToUserOnSnapshot, 
+  deletePost,
+  loadPosts,
+  savePicture,
+  setUser,
+  subscribeToUserOnSnapshot,
   loadUsers,
   //  add
-  subscribeToUserUpdates, 
-  addOrSelectChat, 
+  subscribeToUserUpdates,
+  addOrSelectChat,
   addCurrentChatMessage,
   unsubscribeFromChat,
   unsubscribeFromUsers

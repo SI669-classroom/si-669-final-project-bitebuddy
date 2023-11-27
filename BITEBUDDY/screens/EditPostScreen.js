@@ -7,7 +7,8 @@ import { addPost, updatePost, subscribeToUserOnSnapshot } from "../data/Actions"
 import { diningHallOptions } from "../utils/dininghall";
 import { Image } from 'react-native';
 import { getAuthUser } from '../data/DB';
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { format } from 'date-fns';
 
 function EditPostScreen(props) {
   const { navigation, route } = props;
@@ -15,14 +16,6 @@ function EditPostScreen(props) {
 
   const currentUser = useSelector(state => state.currentUser);
   const dispatch = useDispatch();
-  // console.log('000', currentUser.key);
-  // useEffect(() => {
-  //   if (currentUser && currentUser.key) {
-  //     dispatch(subscribeToUserOnSnapshot(currentUser.key));
-  //   } else {
-  //     console.error('Auth user ID is undefined.');
-  //   }
-  // }, [currentUser, dispatch]);
 
   useEffect(() => {
     let unsubscribe;
@@ -32,7 +25,6 @@ function EditPostScreen(props) {
       console.error('Auth user ID is undefined.');
     }
 
-    // Cleanup subscription on component unmount
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -45,8 +37,6 @@ function EditPostScreen(props) {
   const [inputTitle, setInputTitle] = useState(isAddingNewPost ? '' : route.params.post.title);
   const [inputDininghall, setInputDininghall] = useState(isAddingNewPost ? '' : route.params.post.diningHall);
   const [inputText, setInputText] = useState(isAddingNewPost ? '' : route.params.post.text);
-  // const [inputTag, setInputTag] = useState(isAddingNewPost ? '' : route.params.post.tag);
-  const [isTagActive, setIsTagActive] = useState(isAddingNewPost ? true : route.params.post.tag === 'active');
   const generateUniqueId = () => {
     return Date.now() + Math.random();
   };
@@ -54,16 +44,60 @@ function EditPostScreen(props) {
   const [inputImageURI, setInputImageURI] = useState(
     isAddingNewPost ? null : route.params.post.imageURI
   );
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [diningTime, setDiningTime] = useState(
+    isAddingNewPost ? new Date() : new Date(route.params.post.diningTime)
+  );
+
+  const [isActive, setIsActive] = useState(isAddingNewPost ? true : route.params.post.isActive);
+  const [activeUntil, setActiveUntil] = useState(
+    isAddingNewPost ? new Date() : new Date(route.params.post.activeUntil)
+  );
+  const [isActivePickerVisible, setActivePickerVisibility] = useState(false);
 
 
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    console.log("A date has been picked: ", date);
+    setDiningTime(date);
+    hideDatePicker();
+  };
+
+  const showActivePicker = () => {
+    setActivePickerVisibility(true);
+  };
+
+  const hideActivePicker = () => {
+    setActivePickerVisibility(false);
+  };
+
+  const handleActiveUntilConfirm = (date) => {
+    console.log("Active Until date has been picked: ", date);
+    setActiveUntil(date);
+    hideActivePicker();
+  };
+
+
+  const formatDateTime = (date) => {
+    return format(date, 'MM-dd-yyyy hh:mm a'); // Example format: 'Jun 23, 2020, 7:30 PM'
+  };
 
   const handleSavePost = async () => {
     const postKey = isAddingNewPost ? generateUniqueId() : route.params.post.key;
     const postDetails = {
       text: inputText,
       title: inputTitle,
-      tag: isTagActive,
+      isActive: isActive,
       diningHall: inputDininghall,
+      diningTime: diningTime.toISOString(),
+      activeUntil: isActive ? activeUntil.toISOString() : null,
       key: postKey,
       imageURI: inputImageURI,
       userId: userId,
@@ -129,8 +163,18 @@ function EditPostScreen(props) {
         />
       </View>
 
-
-
+      <Button title="Select Dining Time" onPress={showDatePicker} />
+      <Text style={styles.diningTimeText}>
+        Dining Time: {formatDateTime(diningTime)}
+      </Text>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        date={diningTime} // Initial date set to current
+        is24Hour={true}
+      />
       {/* take picutre */}
       <View style={styles.imageContainer}>
         {inputImageURI ? (
@@ -149,18 +193,35 @@ function EditPostScreen(props) {
 
       <View style={styles.tagContainer}>
         <TouchableOpacity
-          style={[styles.tagLabel, { backgroundColor: isTagActive ? 'lightblue' : 'lightgray' }]}
-          onPress={() => setIsTagActive(true)}
+          style={[styles.tagLabel, { backgroundColor: isActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsActive(true)}
         >
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Active</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tagLabel, { backgroundColor: !isTagActive ? 'lightblue' : 'lightgray' }]}
-          onPress={() => setIsTagActive(false)}
+          style={[styles.tagLabel, { backgroundColor: !isActive ? 'lightblue' : 'lightgray' }]}
+          onPress={() => setIsActive(false)}
         >
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Inactive</Text>
         </TouchableOpacity>
       </View>
+      {isActive && (
+        <>
+          <Button title="Set Active Until" onPress={showActivePicker} />
+          <Text>Your post will be visible to others until: {format(activeUntil, 'MM-dd-yyyy hh:mm a')}</Text>
+          <DateTimePickerModal
+            isVisible={isActivePickerVisible}
+            mode="datetime"
+            onConfirm={handleActiveUntilConfirm}
+            onCancel={hideActivePicker}
+            date={activeUntil}
+            is24Hour={true}
+          />
+        </>
+      )}
+      {!isActive && (
+        <Text style={styles.inactiveMessage}>Your post will not be visible to others.</Text>
+      )}
 
       <View style={styles.buttonContainer}>
         <Button
@@ -284,6 +345,12 @@ const styles = StyleSheet.create({
     height: '80%',
     resizeMode: 'cover',
     borderRadius: 10,
+  },
+  diningTimeText: {
+    fontSize: 18,
+    color: 'black',
+    marginTop: 10,
+    marginBottom: 10
   },
 });
 

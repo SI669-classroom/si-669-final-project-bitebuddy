@@ -9,6 +9,7 @@ import { loadPosts, loadUsers } from "../data/Actions";
 import RNPickerSelect from "react-native-picker-select";
 import { diningHallOptions } from "../utils/dininghall";
 import Avatar from "../components/Avatar";
+import { format } from 'date-fns';
 
 function HomeScreen(props) {
     const { navigation } = props;
@@ -60,6 +61,7 @@ function HomeScreen(props) {
         const user = users.find((user) => user.key === item.userId);
         if (!item) return null;
         const formattedDate = item.lastUpdated ? formatDate(item.lastUpdated) : 'Unknown';
+        const formattedDiningTime = item.diningTime ? format(new Date(item.diningTime), 'MM-dd-yyyy hh:mm a') : 'Not specified';
 
         return (
             <TouchableOpacity onPress={() => navigation.navigate('PostDetail', { postId: item.key })}>
@@ -70,8 +72,11 @@ function HomeScreen(props) {
                         <Text style={styles.userName}>{user?.displayName || 'Unknown User'}</Text>
                     </View>
                     <Text style={styles.postTitle}>{item.title}</Text>
-                    <Text style={styles.postTag}>{item.tag ? 'Active' : 'Inactive'}</Text>
+                    <Text style={styles.postTag}>{item.isActive ? 'Active' : 'Inactive'}</Text>
                     <Text style={styles.postDiningHall}>{item.diningHall}</Text>
+                    <Text style={styles.diningTimeText}>
+                        Dining Time: {formattedDiningTime}
+                    </Text>
                     {item.imageURI ? (
                         <Image source={{ uri: item.imageURI }} style={styles.postImage} />
                     ) : null}
