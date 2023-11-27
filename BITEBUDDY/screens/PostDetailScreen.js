@@ -47,16 +47,17 @@ function PostDetailScreen({ route, navigation }) {
         <Text style={styles.tag}>{post.isActive ? "Active" : "Inactive"}</Text>
         <Image source={{ uri: post.imageURI }} style={styles.postImage} />
       </View>
-      <Button
-        title='Delete'
-        style={styles.button}
-        buttonStyle={{ backgroundColor: 'red' }}
-        onPress={() => {
-          dispatch(deletePost(post.key));
-          navigation.popToTop();
-        }
-        }
-      />
+      {isAuthor && (
+        <Button
+          title='Delete'
+          style={styles.button}
+          buttonStyle={{ backgroundColor: 'red' }}
+          onPress={() => {
+            dispatch(deletePost(post.key));
+            navigation.popToTop();
+          }}
+        />
+      )}
 
       {!isAuthor && (
         <TouchableOpacity
