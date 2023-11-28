@@ -1,12 +1,12 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import { Button } from "@rneui/base";
-import { deletePost, loadPosts } from "../data/Actions";
-import { Image } from 'react-native';
+import { deletePost, loadPosts, subscribeToUserOnSnapshot } from "../data/Actions";
 import { subscribeToUserUpdates, addOrSelectChat, unsubscribeFromUsers } from '../data/Actions';
 import { getAuthUser, signOut } from '../data/DB';
-
+import Avatar from "../components/Avatar";
+import { format } from 'date-fns';
 
 function PostDetailScreen({ route, navigation }) {
   const dispatch = useDispatch();
@@ -17,6 +17,7 @@ function PostDetailScreen({ route, navigation }) {
   console.log('post', post)
   const users = useSelector(state => state.users);
   const isAuthor = post.userId === currentAuthUser.uid;
+  const user = users.find(u => u.key === post.userId);
   console.log('isAuthor?', isAuthor);
 
   useEffect(() => {
@@ -26,6 +27,10 @@ function PostDetailScreen({ route, navigation }) {
     });
     return unsubscribe;
   }, [navigation, dispatch]);
+
+  const formatDateTime = (dateString) => {
+    return format(new Date(dateString), 'MM-dd-yyyy hh:mm a');
+  };
 
   return (
     <View style={styles.screen}>
@@ -40,13 +45,19 @@ function PostDetailScreen({ route, navigation }) {
           </TouchableOpacity>
         )}
       </View>
+
       <View style={styles.body}>
+        <Avatar username={user?.displayName} />
+        <Text style={styles.userName}>{user?.displayName}</Text>
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.text}>{post.text}</Text>
         <Text style={styles.diningHall}>{post.diningHall}</Text>
+        <Text style={styles.diningTime}>Dining Time: {formatDateTime(post.diningTime)}</Text>
         <Text style={styles.tag}>{post.isActive ? "Active" : "Inactive"}</Text>
-        <Image source={{ uri: post.imageURI }} style={styles.postImage} />
+        {post.isActive && <Text style={styles.activeUntil}>Active Until: {formatDateTime(post.activeUntil)}</Text>}
+        {post.imageURI ? <Image source={{ uri: post.imageURI }} style={styles.postImage} /> : null}
       </View>
+
       {isAuthor && (
         <Button
           title='Delete'
@@ -60,7 +71,8 @@ function PostDetailScreen({ route, navigation }) {
       )}
 
       {!isAuthor && (
-        <TouchableOpacity
+        <Button
+          title="Contact me!"
           onPress={() => {
             dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
             navigation.navigate('ChatMain', {
@@ -68,9 +80,7 @@ function PostDetailScreen({ route, navigation }) {
               otherUserId: post.userId
             });
           }}
-        >
-          <Text style={styles.contactButton}>Contact me!</Text>
-        </TouchableOpacity>
+        />
       )}
     </View>
   );
