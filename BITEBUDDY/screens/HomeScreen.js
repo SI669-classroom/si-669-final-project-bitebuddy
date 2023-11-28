@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Alert, Pressable, ScrollView } from "react-native";
 import { Overlay, ButtonGroup } from "react-native-elements";
-import { FontAwesome5 } from '@expo/vector-icons';
+import { Input, Button } from "@rneui/themed";
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import { loadPosts, loadUsers } from "../data/Actions";
 import RNPickerSelect from "react-native-picker-select";
 import { diningHallOptions } from "../utils/dininghall";
 import Avatar from "../components/Avatar";
 import { format } from 'date-fns';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 function HomeScreen(props) {
     const { navigation } = props;
@@ -19,6 +21,43 @@ function HomeScreen(props) {
     const dispatch = useDispatch();
     const [initialLoad, setInitialLoad] = useState(true);
     const [filterDiningHall, setFilterDiningHall] = useState('');
+
+    const [postStatusFilter, setPostStatusFilter] = useState('active'); // 'active' or 'all'
+    const [diningTimeStart, setDiningTimeStart] = useState(null);
+    const [diningTimeEnd, setDiningTimeEnd] = useState(null);
+    const [isDiningTimePickerVisible, setDiningTimePickerVisible] = useState({ start: false, end: false });
+
+    const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+
+
+    const resetFilters = () => {
+        setFilterDiningHall('');
+        setPostStatusFilter('active'); // Assuming 'active' is the default
+        setDiningTimeStart(null);
+        setDiningTimeEnd(null);
+    };
+
+    const formatDateTime = (date) => {
+        return format(date, 'MM-dd-yyyy hh:mm a'); // Example format: 'Jun 23, 2020, 7:30 PM'
+    };
+
+    const showDiningTimePicker = (type) => {
+        setDiningTimePickerVisible({ ...isDiningTimePickerVisible, [type]: true });
+    };
+
+    const hideDiningTimePicker = (type) => {
+        setDiningTimePickerVisible({ ...isDiningTimePickerVisible, [type]: false });
+    };
+
+    const handleDiningTimeConfirm = (date, type) => {
+        if (type === 'start') {
+            setDiningTimeStart(date);
+        } else {
+            setDiningTimeEnd(date);
+        }
+        hideDiningTimePicker(type);
+    };
+
 
     useEffect(() => {
         if (initialLoad) {
@@ -46,12 +85,32 @@ function HomeScreen(props) {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
-    // filter dinning hall
-    const filteredPosts = filterDiningHall
-        ? posts.filter(post => post.diningHall.toLowerCase().includes(filterDiningHall.toLowerCase()))
-        : posts;
+    const statusFilteredPosts = posts.filter(post => {
+        if (postStatusFilter === 'active') {
+            return post.isActive;
+        }
+        return true; // If filter is set to 'all', return all posts
+    });
 
-    const sortedPosts = filteredPosts.sort((a, b) => {
+    const timeFilteredPosts = statusFilteredPosts.filter(post => {
+        const postTime = new Date(post.diningTime).getTime();
+        const isAfterStart = diningTimeStart ? postTime >= diningTimeStart.getTime() : true;
+        const isBeforeEnd = diningTimeEnd ? postTime <= diningTimeEnd.getTime() : true;
+        return isAfterStart && isBeforeEnd;
+    });
+
+    // filter dinning hall
+    // const filteredPosts = filterDiningHall
+    //     ? posts.filter(post => post.diningHall.toLowerCase().includes(filterDiningHall.toLowerCase()))
+    //     : posts;
+
+    const finalFilteredPosts = timeFilteredPosts.filter(post => {
+        return filterDiningHall
+            ? post.diningHall.toLowerCase().includes(filterDiningHall.toLowerCase())
+            : true;
+    });
+
+    const sortedPosts = finalFilteredPosts.sort((a, b) => {
         const dateA = new Date(a.lastUpdated);
         const dateB = new Date(b.lastUpdated);
         return dateB - dateA;
@@ -96,21 +155,65 @@ function HomeScreen(props) {
             <View style={styles.headerContainer}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Explore</Text>
+                    {/* <TouchableOpacity onPress={resetFilters}>
+                        <Ionicons name="refresh-outline" size={24} color="black" />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity onPress={() => setIsFilterModalVisible(true)}>
+                        <FontAwesome5 name="filter" size={24} color="black" />
+                    </TouchableOpacity>
+
                     <TouchableOpacity onPress={handleAddPost}>
                         <FontAwesome5 name="plus-circle" size={24} color="black" />
                     </TouchableOpacity>
 
                 </View>
-                <View style={styles.selectContainer}>
-                    <RNPickerSelect
-                        placeholder={{ label: "Select Dining Hall", value: null }}
-                        items={diningHallOptions}
-                        onValueChange={(value) => setFilterDiningHall(value)}
-                        value={filterDiningHall}
-                        style={pickerSelectStyles}
-                    />
-                </View>
             </View>
+
+            <Overlay isVisible={isFilterModalVisible} onBackdropPress={() => setIsFilterModalVisible(false)}>
+                <View style={styles.filterModalContent}>
+                    <View style={styles.selectContainer}>
+                        <RNPickerSelect
+                            placeholder={{ label: "Select Dining Hall", value: null }}
+                            items={diningHallOptions}
+                            onValueChange={(value) => setFilterDiningHall(value)}
+                            value={filterDiningHall}
+                            style={pickerSelectStyles}
+                        />
+                        <RNPickerSelect
+                            placeholder={{ label: "Select Post Status", value: null }}
+                            items={[
+                                { label: 'Show Active Posts', value: 'active' },
+                                { label: 'Show All Posts', value: 'all' }
+                            ]}
+                            onValueChange={(value) => setPostStatusFilter(value)}
+                            value={postStatusFilter}
+                            style={pickerSelectStyles}
+                        />
+                        <Button title="Select Dining Start Time" type="clear" onPress={() => showDiningTimePicker('start')} />
+                        {diningTimeStart && <Text>Start Time: {formatDateTime(diningTimeStart)}</Text>}
+
+                        <Button title="Select Dining End Time" type="clear" onPress={() => showDiningTimePicker('end')} />
+                        {diningTimeEnd && <Text>End Time: {formatDateTime(diningTimeEnd)}</Text>}
+
+                        <DateTimePickerModal
+                            isVisible={isDiningTimePickerVisible.start}
+                            mode="datetime"
+                            onConfirm={(date) => handleDiningTimeConfirm(date, 'start')}
+                            onCancel={() => hideDiningTimePicker('start')}
+                        />
+                        <DateTimePickerModal
+                            isVisible={isDiningTimePickerVisible.end}
+                            mode="datetime"
+                            onConfirm={(date) => handleDiningTimeConfirm(date, 'end')}
+                            onCancel={() => hideDiningTimePicker('end')}
+                        />
+                    </View>
+                    <View style={styles.filterModalFooter}>
+                        <Button title="Reset" type="outline" onPress={resetFilters} />
+                        <Button title="Save" onPress={() => setIsFilterModalVisible(false)} />
+                    </View>
+                </View>
+            </Overlay>
 
             <ScrollView style={styles.listContainer}>
                 {sortedPosts.map((item, index) => (
@@ -220,7 +323,14 @@ const pickerSelectStyles = StyleSheet.create({
         height: 35,
         width: '100%',
     },
-    // Add Android styles if needed
+    filterModalContent: {
+        padding: 20,
+    },
+    filterModalFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginTop: 20,
+    },
 });
 
 export default HomeScreen;
