@@ -213,25 +213,68 @@ const addPost = (postDetails, userId) => {
   }
 }
 
+// const updatePost = (postDetails) => {
+//   return async (dispatch) => {
+//     await updateDoc(doc(db, 'posts', postDetails.key), {
+//       text: postDetails.text,
+//       title: postDetails.title,
+//       diningHall: postDetails.diningHall,
+//       diningTime: postDetails.diningTime ? postDetails.diningTime : null,
+//       imageURI: postDetails.imageURI,
+//       lastUpdated: new Date().toISOString(),
+//       isActive: postDetails.isActive,
+//       activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
+//     });
+//     console.log('Dispatching from Action:', postDetails);
+//     dispatch({
+//       type: UPDATE_POST,
+//       payload: postDetails
+//     });
+//   };
+// };
 const updatePost = (postDetails) => {
-  return async (dispatch) => {
-    await updateDoc(doc(db, 'posts', postDetails.key), {
-      text: postDetails.text,
-      title: postDetails.title,
-      diningHall: postDetails.diningHall,
-      diningTime: postDetails.diningTime ? postDetails.diningTime : null,
-      imageURI: postDetails.imageURI,
-      lastUpdated: new Date().toISOString(),
-      isActive: postDetails.isActive,
-      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
-    });
-    console.log('Dispatching from Action:', postDetails);
-    dispatch({
-      type: UPDATE_POST,
-      payload: postDetails
-    });
+  return async (dispatch, getState) => {
+    try {
+      const { key, ...rest } = postDetails;
+
+      // console.log('Updating post in Firestore2:', postDetails);
+
+      // Access the Firebase Storage URL from Redux state
+      const pictureURI = getState().pictureURI;
+      console.log('Current pictureURI in Redux state11:', pictureURI);
+
+      await updateDoc(doc(db, 'posts', key), {
+        ...rest,
+        lastUpdated: new Date().toISOString(),
+        isActive: rest.isActive,
+        activeUntil: rest.isActive ? rest.activeUntil : null,
+        imageURI: pictureURI || null, // Include the imageURI in the update
+      });
+      console.log('Current pictureURI in Redux state12:', pictureURI)
+      console.log('Post successfully updated in Firestore.');
+
+      // console.log('postDetails:', postDetails);
+      // console.log('imageURI:', pictureURI);
+
+      const action = {
+        type: UPDATE_POST,
+        payload: {
+          ...rest,
+          imageURI: pictureURI || null,
+        },
+      };
+
+      console.log('Dispatching action:', action);
+      
+      dispatch(action);
+
+      console.log('UPDATE_POST action dispatched successfully.');
+    } catch (error) {
+      console.error('Error updating post:', error);
+    }
   };
 };
+
 
 
 const deletePost = (postId) => {
@@ -247,15 +290,35 @@ const deletePost = (postId) => {
   }
 }
 
-const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureData, { dispatch }) => {
+// const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureData, { dispatch }) => {
+//   try {
+//     const pictureURI = pictureData?.uri;
+//     dispatch({ type: 'SAVE_PICTURE', payload: pictureData });
+//   } catch (error) {
+//     console.error('Error saving picture:', error);
+//   }
+// });
+const savePicture = createAsyncThunk('SAVE_PICTURE', async (pictureObject, { dispatch }) => {
   try {
-    const pictureURI = pictureData?.uri;
-    dispatch({ type: 'SAVE_PICTURE', payload: pictureData });
+    const fileName = pictureObject.uri.split('/').pop(); 
+    // console.log('Uploading image:', fileName);
+
+    const currentPhotoRef = ref(storage, `images/${fileName}`);
+    const response = await fetch(pictureObject.uri);
+    const imageBlob = await response.blob();
+    await uploadBytes(currentPhotoRef, imageBlob);
+    const pictureURI = await getDownloadURL(currentPhotoRef);
+    
+    // console.log('Upload successful. Picture URI:', pictureURI);
+    
+    dispatch({ type: 'SAVE_PICTURE', payload: { pictureObject, pictureURI } }); // Include pictureURI in the payload
+    console.log('Dispatched SAVE_PICTURE action.',pictureURI)
+    return pictureURI;
   } catch (error) {
     console.error('Error saving picture:', error);
+    throw error;
   }
 });
-
 
 
 // add
@@ -266,7 +329,7 @@ const subscribeToUserUpdates = () => {
   return (dispatch) => {
     usersSnapshotUnsub = onSnapshot(collection(db, 'users'), usersSnapshot => {
       const updatedUsers = usersSnapshot.docs.map(uSnap => {
-        console.log(uSnap.data());
+        // console.log(uSnap.data());
         return uSnap.data(); // already has key?
       });
       dispatch({
@@ -304,7 +367,7 @@ const addOrSelectChat = (user1id, user2id) => {
         elem => elem.data().participants.includes(user2id));
       // console.log('chatSnap', chatSnap);
       let theChat;
-      console.log('chatSnap66', chatSnap);
+      // console.log('chatSnap66', chatSnap);
       if (!chatSnap) { //; we didn't find a match, create a new one
         theChat = {
           participants: [user1id, user2id],
@@ -320,7 +383,7 @@ const addOrSelectChat = (user1id, user2id) => {
       // console.log('theChat', theChat);
       // const initialState = getState();
       // console.log('Initial State:', initialState);
-      console.log('Executing addOrSelectChat');
+      // console.log('Executing addOrSelectChat');
       dispatch({
         type: SET_CURRENT_CHAT, // Add this line
         payload: {
@@ -369,7 +432,7 @@ const addOrSelectChat = (user1id, user2id) => {
 
 const addCurrentChatMessage = (message) => {
   return async (dispatch, getState) => {
-    console.log('currentChat67', getState());
+    // console.log('currentChat67', getState());
     const currentChat = getState().currentChat;
     const messageCollection = collection(db, 'chats', currentChat.id, 'messages');
     await addDoc(messageCollection, message); // no need to dispatch
@@ -397,7 +460,7 @@ export {
   updatePost,
   deletePost,
   loadPosts,
-  savePicture,
+  savePicture,  
   setUser,
   subscribeToUserOnSnapshot,
   loadUsers,

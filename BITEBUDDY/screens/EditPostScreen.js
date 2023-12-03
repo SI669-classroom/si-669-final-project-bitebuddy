@@ -32,6 +32,8 @@ function EditPostScreen(props) {
     };
   }, [dispatch]);
 
+  
+
   const userId = currentUser ? currentUser.key : null;
 
   const [inputTitle, setInputTitle] = useState(isAddingNewPost ? '' : route.params.post.title);

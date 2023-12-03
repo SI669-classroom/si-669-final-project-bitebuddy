@@ -7,11 +7,14 @@ import { savePicture } from '../data/Actions';
 import { useDispatch } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
 import { updatePost } from '../data/Actions';
+import { createAsyncThunk, getState } from '@reduxjs/toolkit';
 function CameraScreen({navigation}) {
   
 //   const currentUser = useSelector(state => state.currentUser);
 const route = useRoute();
 const dispatch = useDispatch();
+const pictureURI = useSelector((state) => state.pictureURI);
+const [localPictureURI, setLocalPictureURI] = useState(null);
 
   const [hasPermission, setHasPermission] = useState(null);
   const { onImageUpdate } = route.params || {};
@@ -24,6 +27,11 @@ const dispatch = useDispatch();
   useEffect(()=>{
     getPermissions();
   }, []);
+
+  useEffect(() => {
+    // Update local state when pictureURI changes
+    setLocalPictureURI(pictureURI);
+  }, [pictureURI]); // Run whenever pictureURI changes
 
 
   let theCamera = undefined;
@@ -59,20 +67,27 @@ const dispatch = useDispatch();
       </View>
       
       <Button
-  onPress={async () => {
-    let pictureObject = await theCamera.takePictureAsync({ quality: 0.1 });
-    dispatch(savePicture(pictureObject));
-    onImageUpdate && onImageUpdate(pictureObject.uri); // Update the image URI in the EditPostScreen
-    const updatedPost = {
-        ...route.params.post,
-        imageURI: pictureObject.uri,
-      };
-      dispatch(updatePost(updatedPost));
-    navigation.goBack();
-  }}
+        onPress={async () => {
+          try {
+            let pictureObject = await theCamera.takePictureAsync({ quality: 0.1 });
+            const pictureURI = await dispatch(savePicture(pictureObject)); // Wait for savePicture to complete
+          
+            const updatedPost = {
+              ...route.params.post,
+              imageURI: pictureURI || pictureObject.uri, // Use pictureURI if available, otherwise fallback to pictureObject.uri
+            };
+            console.log('updatedPost??', updatedPost);
+          
+            await dispatch(updatePost(updatedPost)); // Wait for updatePost to complete
+            navigation.goBack();
+          } catch (error) {
+            console.error('Error in onPress:', error);
+          }
+        }}
 >
   Snap!
 </Button>
+
     </View>
   );
 }

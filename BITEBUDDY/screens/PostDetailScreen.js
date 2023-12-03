@@ -14,7 +14,6 @@ function PostDetailScreen({ route, navigation }) {
   const posts = useSelector((state) => state.posts);
   const post = posts.find(p => p.key === postId);
   const currentAuthUser = getAuthUser();
-  console.log('post', post)
   const users = useSelector(state => state.users);
   const isAuthor = post.userId === currentAuthUser.uid;
   const user = users.find(u => u.key === post.userId);
@@ -56,6 +55,8 @@ function PostDetailScreen({ route, navigation }) {
         <Text style={styles.tag}>{post.isActive ? "Active" : "Inactive"}</Text>
         {post.isActive && <Text style={styles.activeUntil}>Active Until: {formatDateTime(post.activeUntil)}</Text>}
         {post.imageURI ? <Image source={{ uri: post.imageURI }} style={styles.postImage} /> : null}
+      {/* <Image source={route.params.post.imageURI ? { uri: route.params.post.imageURI } : require('../assets/ImageNotAvailable.png')} style={styles.image} /> */}
+
       </View>
 
       {isAuthor && (

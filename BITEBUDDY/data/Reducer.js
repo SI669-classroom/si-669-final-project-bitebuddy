@@ -14,14 +14,15 @@ const initialState = {
   posts: [],
   users: [],
   messages: [],
-  currentChat: { }
+  currentChat: { },
+  pictureURI: null,
 }
 
 const loadUsers = (state, action) => {
   const { users } = action.payload;
   return {
     ...state,
-    users: users
+    users: users,
   }
 }
 
@@ -78,7 +79,7 @@ const deletePost = (state, postId) => {
 const savePicture = (state, action) => {
   return {
     ...state,
-    updatedPictureURI: action.payload.uri,
+    pictureURI: action.payload.pictureURI,
   };
 };
 
@@ -90,7 +91,7 @@ const addUser = (state, payload) => {
 }
 
 const setCurrentUser = (state, payload) => {
-  console.log('payload:',payload.currentUser.messages);
+  // console.log('payload:',payload.currentUser.messages);
   return {
     ...state, 
     currentUser: payload.currentUser
