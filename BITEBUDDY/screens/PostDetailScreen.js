@@ -76,9 +76,12 @@ function PostDetailScreen({ route, navigation }) {
           title="Contact me!"
           onPress={() => {
             dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
-            navigation.navigate('ChatMain', {
-              currentUserId: currentAuthUser.uid,
-              otherUserId: post.userId
+            navigation.navigate('Chat', {
+              screen: 'ChatMain',
+              params: {
+                currentUserId: currentAuthUser.uid,
+                otherUserId: post.userId
+              }
             });
           }}
         />

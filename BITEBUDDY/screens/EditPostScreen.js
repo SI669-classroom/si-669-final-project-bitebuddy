@@ -53,7 +53,7 @@ function EditPostScreen(props) {
 
   const [isActive, setIsActive] = useState(isAddingNewPost ? true : route.params.post.isActive);
   const [activeUntil, setActiveUntil] = useState(
-    isAddingNewPost ? new Date() : new Date(route.params.post.activeUntil)
+    isAddingNewPost || !route.params.post.activeUntil ? new Date() : new Date(route.params.post.activeUntil)
   );
   const [isActivePickerVisible, setActivePickerVisibility] = useState(false);
 

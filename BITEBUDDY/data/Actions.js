@@ -241,7 +241,7 @@ const updatePost = (postDetails) => {
 
       // Access the Firebase Storage URL from Redux state
       const pictureURI = getState().pictureURI;
-      console.log('Current pictureURI in Redux state11:', pictureURI);
+      // console.log('Current pictureURI in Redux state11:', pictureURI);
 
       await updateDoc(doc(db, 'posts', key), {
         ...rest,
@@ -250,11 +250,9 @@ const updatePost = (postDetails) => {
         activeUntil: rest.isActive ? rest.activeUntil : null,
         imageURI: pictureURI || null, // Include the imageURI in the update
       });
-      console.log('Current pictureURI in Redux state12:', pictureURI)
-      console.log('Post successfully updated in Firestore.');
+      // console.log('Current pictureURI in Redux state12:', pictureURI)
+      // console.log('Post successfully updated in Firestore.');
 
-      // console.log('postDetails:', postDetails);
-      // console.log('imageURI:', pictureURI);
 
       const action = {
         type: UPDATE_POST,
@@ -265,9 +263,7 @@ const updatePost = (postDetails) => {
       };
 
       console.log('Dispatching action:', action);
-      
-      dispatch(action);
-
+      // dispatch(action);
       console.log('UPDATE_POST action dispatched successfully.');
     } catch (error) {
       console.error('Error updating post:', error);
