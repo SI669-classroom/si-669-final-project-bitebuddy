@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Button } from '@rneui/themed';
 import { addUser } from '../data/Actions';
 import { signIn, signUp, subscribeToAuthChanges } from '../data/DB';
+import logo from '../assets/logo.png';
 
 function SigninBox({ navigation }) {
     const dispatch = useDispatch();
@@ -21,7 +22,9 @@ function SigninBox({ navigation }) {
 
     return (
         <View style={styles.loginContainer}>
+            <Image source={logo} style={styles.image} />
             <Text style={styles.loginHeaderText}>Sign In</Text>
+
             <View style={styles.loginRow}>
                 <View style={styles.loginLabelContainer}>
                     <Text style={styles.loginLabelText}>Email: </Text>
@@ -82,6 +85,7 @@ function SignupBox({ navigation }) {
 
     return (
         <View style={styles.loginContainer}>
+            <Image source={logo} style={styles.image} />
             <Text style={styles.loginHeaderText}>Sign Up</Text>
             <View style={styles.loginRow}>
                 <View style={styles.loginLabelContainer}>
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     bodyContainer: {
-        flex: 0.5,
+        flex: 0.8,
         justifyContent: 'center',
         alignItems: 'center',
         //backgroundColor: 'tan'
@@ -261,6 +265,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
+    },
+    image: {
+        marginVertical: 20,
+        width: 210,
+        height: 200
     },
 });
 

@@ -1,8 +1,10 @@
-import { View, Text, Alert, StyleSheet } from 'react-native';
+import { View, Text, Alert, StyleSheet, Image } from 'react-native';
 import { signOut, getAuthUser } from "../data/DB";
 import { Button } from '@rneui/themed';
+import logo from '../assets/logo.png';
 
 function ProfileScreen() {
+
     return (
         <View style={styles.screen}>
             <View style={styles.header}>
@@ -12,6 +14,7 @@ function ProfileScreen() {
                 <Text style={styles.bodyText}>
                     Welcome to BiteBuddy, {getAuthUser().displayName}!
                 </Text>
+                <Image source={logo} style={styles.image} />
                 <Button
                     onPress={async () => {
                         try {
@@ -61,6 +64,8 @@ const styles = StyleSheet.create({
     },
     image: {
         marginVertical: 20,
+        width: 210,
+        height: 200
     },
     signOutButton: {
         marginBottom: 20,
