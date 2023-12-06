@@ -51,7 +51,7 @@ function EditPostScreen(props) {
 
   const [isActive, setIsActive] = useState(isAddingNewPost ? true : route.params.post.isActive);
   const [activeUntil, setActiveUntil] = useState(
-    isAddingNewPost ? new Date() : new Date(route.params.post.activeUntil)
+    isAddingNewPost || !route.params.post.activeUntil ? new Date() : new Date(route.params.post.activeUntil)
   );
   const [isActivePickerVisible, setActivePickerVisibility] = useState(false);
 
@@ -163,7 +163,7 @@ function EditPostScreen(props) {
         />
       </View>
 
-      <Button title="Select Dining Time" onPress={showDatePicker} />
+      <Button title="Select Dining Time" onPress={showDatePicker} type="outline" />
       <Text style={styles.diningTimeText}>
         Dining Time: {formatDateTime(diningTime)}
       </Text>
@@ -184,7 +184,10 @@ function EditPostScreen(props) {
         )}
       </View>
       <View style={styles.buttonContainer1}>
-        <Button onPress={async () => { navigation.navigate('Camera', { onImageUpdate: handleImageUpdate, }); }}>
+        <Button
+          onPress={async () => { navigation.navigate('Camera', { onImageUpdate: handleImageUpdate, }); }}
+          type='outline'
+        >
           Take a picture
         </Button>
       </View>
@@ -196,18 +199,18 @@ function EditPostScreen(props) {
           style={[styles.tagLabel, { backgroundColor: isActive ? 'lightblue' : 'lightgray' }]}
           onPress={() => setIsActive(true)}
         >
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Active</Text>
+          <Text style={{ fontSize: 18, fontWeight: isActive ? 'bold' : 'normal' }}>Active</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tagLabel, { backgroundColor: !isActive ? 'lightblue' : 'lightgray' }]}
           onPress={() => setIsActive(false)}
         >
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Inactive</Text>
+          <Text style={{ fontSize: 18, fontWeight: !isActive ? 'bold' : 'normal' }}>Inactive</Text>
         </TouchableOpacity>
       </View>
       {isActive && (
         <>
-          <Button title="Set Active Until" onPress={showActivePicker} />
+          <Button title="Set Active Until" onPress={showActivePicker} type="outline" />
           <Text>Your post will be visible to others until: {format(activeUntil, 'MM-dd-yyyy hh:mm a')}</Text>
           <DateTimePickerModal
             isVisible={isActivePickerVisible}
@@ -226,6 +229,7 @@ function EditPostScreen(props) {
       <View style={styles.buttonContainer}>
         <Button
           title='Cancel'
+          color='secondary'
           onPress={() => {
             navigation.goBack()
           }}

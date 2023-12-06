@@ -48,7 +48,7 @@ function ChatScreen({ navigation, route }) {
               name="arrow-back"
               color="black"
               type="material"
-              size={32}
+              size={24}
             />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
@@ -103,7 +103,7 @@ function ChatScreen({ navigation, route }) {
             <Icon
               name="send"
               size={32}
-              color="purple"
+              color="skyblue"
             />
           </Button>
         </View>
@@ -126,7 +126,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     width: '100%',
-    padding: '3%'
+    paddingHorizontal: '10%',
+    paddingTop: '25%',
+    paddingBottom: '5%',
+    backgroundColor: 'lightblue'
   },
   headerLeft: {
     flex: 0.2,
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 32
+    fontSize: 24
   },
   body: {
     flex: 0.8,
@@ -162,7 +165,8 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     borderRadius: 6,
-    padding: '2%'
+    padding: '2%',
+    marginBottom: '2%'
   },
   messageText: {
     fontSize: 18

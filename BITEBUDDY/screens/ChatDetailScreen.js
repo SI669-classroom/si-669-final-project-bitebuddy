@@ -74,35 +74,43 @@ const ChatDetailScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>ChatDetail Screen</Text>
-      <FlatList
-        data={filteredUsers}
-        keyExtractor={(item) => item.key}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.chatItem}
-            onPress={() => {
-              dispatch(addOrSelectChat(currentUser.key, item.key));
-              console.log("dispatch success!!")
-              navigation.navigate('ChatMain', {
-                currentUserId: currentUser.key,
-                otherUserId: item.key,
-              });
-            }}
-          >
-            <Text>{`Chat with ${item.displayName}`}</Text>
-          </TouchableOpacity>
-        )}
-      />
+    <View style={styles.screen}>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Chats</Text>
+        </View>
+      </View>
+      {/* <Text style={styles.title}>ChatDetail Screen</Text> */}
+      <View style={styles.chatlist}>
+        <FlatList
+          data={filteredUsers}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.chatItem}
+              onPress={() => {
+                dispatch(addOrSelectChat(currentUser.key, item.key));
+                console.log("dispatch success!!")
+                navigation.navigate('ChatMain', {
+                  currentUserId: currentUser.key,
+                  otherUserId: item.key,
+                });
+              }}
+            >
+              <Text style={styles.listText}>{`Chat with ${item.displayName}`}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    padding: 16,
+    backgroundColor: '#fff',
+    // alignItems: 'center'
   },
   title: {
     fontSize: 24,
@@ -110,11 +118,40 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   chatItem: {
+    width: '100%',
     padding: 16,
-    marginBottom: 8,
-    backgroundColor: '#e0e0e0',
+    marginBottom: 4,
+    backgroundColor: '#e8e8e8',
     borderRadius: 8,
   },
+  headerContainer: {
+    // flex: 0.1,
+    width: '100%',
+    // flexDirection: 'row',
+    // justifyContent: "space-between",
+    // alignItems: 'center',
+    paddingHorizontal: '10%',
+    paddingTop: '25%',
+    paddingBottom: '5%',
+    backgroundColor: 'lightblue'
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: "space-between",
+    alignItems: 'center',
+    // paddingHorizontal: '10%',
+  },
+  headerText: {
+    fontSize: 28,
+    marginHorizontal: 10,
+  },
+  chatlist: {
+    marginVertical: 20,
+    paddingHorizontal: 16
+  },
+  listText: {
+    fontSize: 16
+  }
 });
 
 export default ChatDetailScreen;

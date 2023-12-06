@@ -154,18 +154,18 @@ function HomeScreen(props) {
 
             <View style={styles.headerContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.headerText}>Explore</Text>
-                    {/* <TouchableOpacity onPress={resetFilters}>
-                        <Ionicons name="refresh-outline" size={24} color="black" />
-                    </TouchableOpacity> */}
-                    <TouchableOpacity onPress={() => setIsFilterModalVisible(true)}>
-                        <FontAwesome5 name="filter" size={24} color="black" />
-                    </TouchableOpacity>
+                    <View style={styles.headerLeft}>
+                        <Text style={styles.headerText}>Explore</Text>
+                    </View>
+                    <View style={styles.headerRight}>
+                        <TouchableOpacity style={styles.headerBtn} onPress={() => setIsFilterModalVisible(true)}>
+                            <FontAwesome5 name="filter" size={24} color="black" />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handleAddPost}>
-                        <FontAwesome5 name="plus-circle" size={24} color="black" />
-                    </TouchableOpacity>
-
+                        <TouchableOpacity style={styles.headerBtn} onPress={handleAddPost}>
+                            <FontAwesome5 name="plus-circle" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
         // alignItems: 'center',
         paddingHorizontal: '10%',
         paddingTop: '25%',
+        paddingBottom: '5%',
         backgroundColor: 'lightblue'
     },
     header: {
@@ -246,6 +247,14 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: 'center',
         // paddingHorizontal: '10%',
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     headerText: {
         fontSize: 28,
@@ -312,6 +321,9 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         marginTop: 10,
     },
+    headerBtn: {
+        marginRight: 5,
+    }
 });
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {

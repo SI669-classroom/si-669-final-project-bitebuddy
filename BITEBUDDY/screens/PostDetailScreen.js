@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
-import { Button } from "@rneui/base";
+import { Button, Icon } from "@rneui/base";
 import { deletePost, loadPosts, subscribeToUserOnSnapshot } from "../data/Actions";
 import { subscribeToUserUpdates, addOrSelectChat, unsubscribeFromUsers } from '../data/Actions';
 import { getAuthUser, signOut } from '../data/DB';
@@ -47,8 +47,10 @@ function PostDetailScreen({ route, navigation }) {
       </View>
 
       <View style={styles.body}>
-        <Avatar username={user?.displayName} />
-        <Text style={styles.userName}>{user?.displayName}</Text>
+        <View style={styles.userInfo}>
+          <Avatar username={user?.displayName} />
+          <Text style={styles.userName}>{user?.displayName || 'Unknown User'}</Text>
+        </View>
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.text}>{post.text}</Text>
         <Text style={styles.diningHall}>{post.diningHall}</Text>
@@ -75,9 +77,12 @@ function PostDetailScreen({ route, navigation }) {
           title="Contact me!"
           onPress={() => {
             dispatch(addOrSelectChat(currentAuthUser.uid, post.userId));
-            navigation.navigate('ChatMain', {
-              currentUserId: currentAuthUser.uid,
-              otherUserId: post.userId
+            navigation.navigate('Chat', {
+              screen: 'ChatMain',
+              params: {
+                currentUserId: currentAuthUser.uid,
+                otherUserId: post.userId
+              }
             });
           }}
         />
@@ -108,7 +113,10 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   headerText: {
-    fontSize: 24
+    fontSize: 24,
+    position: 'absolute',
+    left: 140,
+    top: 100
   },
   body: {
     flex: 0.6,
@@ -149,6 +157,15 @@ const styles = StyleSheet.create({
   },
   button: {
     paddingTop: 200,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10
+  },
+  userName: {
+    marginLeft: 10,
+    fontSize: 20
   },
 });
 
