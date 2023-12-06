@@ -8,9 +8,9 @@ function ProfileScreen() {
             <View style={styles.header}>
                 <Text style={styles.headerText}>My Profile</Text>
             </View>
-            <View>
-                <Text>
-                    You're signed in, {getAuthUser().displayName}!
+            <View style={styles.body}>
+                <Text style={styles.bodyText}>
+                    Welcome to BiteBuddy, {getAuthUser().displayName}!
                 </Text>
                 <Button
                     onPress={async () => {
@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
     header: {
         flex: 0.1,
@@ -47,6 +48,22 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 28,
         marginHorizontal: 10,
+    },
+    body: {
+        flex: 0.8,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        paddingTop: 20,
+    },
+    bodyText: {
+        fontSize: 22,
+        marginVertical: 10,
+    },
+    image: {
+        marginVertical: 20,
+    },
+    signOutButton: {
+        marginBottom: 20,
     },
 })
 
