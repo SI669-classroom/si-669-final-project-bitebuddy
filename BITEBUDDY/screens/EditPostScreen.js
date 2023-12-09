@@ -185,7 +185,7 @@ function EditPostScreen(props) {
       </View>
       <View style={styles.buttonContainer1}>
         <Button
-          onPress={async () => { navigation.navigate('Camera', { onImageUpdate: handleImageUpdate, }); }}
+          onPress={async () => { navigation.navigate('Camera', { onImageUpdate: handleImageUpdate, post: route.params?.post || {} ,}); }}
           type='outline'
         >
           Take a picture
