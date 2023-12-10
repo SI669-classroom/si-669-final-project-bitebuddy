@@ -63,6 +63,7 @@ const dispatch = useDispatch();
     let pictureObject = await theCamera.takePictureAsync({ quality: 0.1 });
     dispatch(savePicture(pictureObject));
     onImageUpdate && onImageUpdate(pictureObject.uri); // Update the image URI in the EditPostScreen
+    console.log("wow:",route.params.post)
     const updatedPost = {
         ...route.params.post,
         imageURI: pictureObject.uri,

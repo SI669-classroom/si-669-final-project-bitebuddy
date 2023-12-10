@@ -215,20 +215,27 @@ const addPost = (postDetails, userId) => {
 
 const updatePost = (postDetails) => {
   return async (dispatch) => {
+    if (!postDetails.key) {
+      console.log('postDetails', postDetails);
+      console.error('postDetails.key is undefined or null.');
+      return;
+    }
+
     await updateDoc(doc(db, 'posts', postDetails.key), {
       text: postDetails.text,
       title: postDetails.title,
       diningHall: postDetails.diningHall,
-      diningTime: postDetails.diningTime ? postDetails.diningTime : null,
+      diningTime: postDetails.diningTime || null,
       imageURI: postDetails.imageURI,
       lastUpdated: new Date().toISOString(),
       isActive: postDetails.isActive,
-      activeUntil: postDetails.isActive ? postDetails.activeUntil : null,
+      activeUntil: postDetails.isActive ? postDetails.activeUntil || null : null,
     });
-    console.log('Dispatching from Action:', postDetails);
+
+    console.log('Dispatching from Action1209:', postDetails);
     dispatch({
       type: UPDATE_POST,
-      payload: postDetails
+      payload: postDetails,
     });
   };
 };

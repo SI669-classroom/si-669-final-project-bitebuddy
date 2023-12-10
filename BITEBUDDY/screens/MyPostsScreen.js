@@ -167,10 +167,11 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     postImage: {
-        width: '60%',
-        height: '60%',
+        width: '100%', // Adjusted width to take up the entire width
+        height: 200,   // Set a fixed or dynamic height as needed
         resizeMode: 'cover',
         borderRadius: 10,
+        marginBottom: 10, 
     },
     lastUpdatedText: {
         fontSize: 12,
